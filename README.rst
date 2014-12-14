@@ -14,6 +14,11 @@ Installation
 
     pip install fbpca
 
+Documentation
+-------------
+
+http://fbpca.readthedocs.org/
+
 License
 -------
 
