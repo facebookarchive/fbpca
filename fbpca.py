@@ -1635,6 +1635,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
         # Calculate the average of the entries in every column.
         #
         c = A.sum(axis=0) / m
+        c = c.astype(A.dtype)
         c = c.reshape((1, n))
 
         #
@@ -1677,7 +1678,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             for it in range(n_iter):
 
                 Q = (mult(Q.conj().T, A)
-                    - (Q.conj().T.dot(np.ones((m, 1)))).dot(c)).conj().T
+                    - (Q.conj().T.dot(np.ones((m, 1), dtype=A.dtype))).dot(c)).conj().T
                 (Q, _) = lu(Q, permute_l=True)
 
                 Q = mult(A, Q) - np.ones((m, 1), dtype=A.dtype).dot(c.dot(Q))
