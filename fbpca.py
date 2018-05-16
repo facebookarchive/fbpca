@@ -1511,6 +1511,10 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
     else:
         isreal = False
 
+    default_dtype = np.array(0.).dtype
+    if A.dtype in [np.float16, np.float32]:
+        default_dtype = A.dtype
+
     if raw:
 
         #
@@ -1531,10 +1535,10 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply A to a random matrix, obtaining Q.
             #
             if isreal:
-                Q = mult(A, np.random.uniform(low=-1.0, high=1.0, size=(n, l)))
+                Q = mult(A, np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(default_dtype))
             if not isreal:
-                Q = mult(A, np.random.uniform(low=-1.0, high=1.0, size=(n, l))
-                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)))
+                Q = mult(A, np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(default_dtype)
+                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(default_dtype))
 
             #
             # Form a matrix Q whose columns constitute a
@@ -1583,10 +1587,10 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply A' to a random matrix, obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(default_dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(default_dtype) \
+                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(default_dtype)
 
             Q = mult(R, A).conj().T
 
@@ -1635,6 +1639,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
         # Calculate the average of the entries in every column.
         #
         c = A.sum(axis=0) / m
+        c = c.astype(default_dtype)
         c = c.reshape((1, n))
 
         #
@@ -1642,7 +1647,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
         #
         if l >= m / 1.25 or l >= n / 1.25:
             (U, s, Va) = svd((A.todense() if issparse(A)
-                else A) - np.ones((m, 1)).dot(c), full_matrices=False)
+                else A) - np.ones((m, 1), dtype=default_dtype).dot(c), full_matrices=False)
             #
             # Retain only the leftmost k columns of U, the uppermost
             # k rows of Va, and the first k entries of s.
@@ -1655,12 +1660,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply the centered A to a random matrix, obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(default_dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(default_dtype) \
+                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(default_dtype)
 
-            Q = mult(A, R) - np.ones((m, 1)).dot(c.dot(R))
+            Q = mult(A, R) - np.ones((m, 1), dtype=default_dtype).dot(c.dot(R))
 
             #
             # Form a matrix Q whose columns constitute a
@@ -1677,10 +1682,10 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             for it in range(n_iter):
 
                 Q = (mult(Q.conj().T, A)
-                    - (Q.conj().T.dot(np.ones((m, 1)))).dot(c)).conj().T
+                    - (Q.conj().T.dot(np.ones((m, 1), dtype=default_dtype))).dot(c)).conj().T
                 (Q, _) = lu(Q, permute_l=True)
 
-                Q = mult(A, Q) - np.ones((m, 1)).dot(c.dot(Q))
+                Q = mult(A, Q) - np.ones((m, 1), dtype=default_dtype).dot(c.dot(Q))
 
                 if it + 1 < n_iter:
                     (Q, _) = lu(Q, permute_l=True)
@@ -1695,7 +1700,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # centered A.
             #
             QA = mult(Q.conj().T, A) \
-                - (Q.conj().T.dot(np.ones((m, 1)))).dot(c)
+                - (Q.conj().T.dot(np.ones((m, 1), dtype=default_dtype))).dot(c)
             (R, s, Va) = svd(QA, full_matrices=False)
             U = Q.dot(R)
 
@@ -1712,12 +1717,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(default_dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(default_dtype) \
+                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(default_dtype)
 
-            Q = (mult(R, A) - (R.dot(np.ones((m, 1)))).dot(c)).conj().T
+            Q = (mult(R, A) - (R.dot(np.ones((m, 1), dtype=default_dtype))).dot(c)).conj().T
 
             #
             # Form a matrix Q whose columns constitute a
@@ -1733,11 +1738,11 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             #
             for it in range(n_iter):
 
-                Q = mult(A, Q) - np.ones((m, 1)).dot(c.dot(Q))
+                Q = mult(A, Q) - np.ones((m, 1), dtype=default_dtype).dot(c.dot(Q))
                 (Q, _) = lu(Q, permute_l=True)
 
                 Q = (mult(Q.conj().T, A)
-                    - (Q.conj().T.dot(np.ones((m, 1)))).dot(c)).conj().T
+                    - (Q.conj().T.dot(np.ones((m, 1), dtype=default_dtype))).dot(c)).conj().T
 
                 if it + 1 < n_iter:
                     (Q, _) = lu(Q, permute_l=True)
@@ -1750,7 +1755,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # centered A; adjust the right singular vectors to
             # approximate the right singular vectors of the centered A.
             #
-            (U, s, Ra) = svd(mult(A, Q) - np.ones((m, 1)).dot(c.dot(Q)),
+            (U, s, Ra) = svd(mult(A, Q) - np.ones((m, 1), dtype=default_dtype).dot(c.dot(Q)),
                 full_matrices=False)
             Va = Ra.dot(Q.conj().T)
 
