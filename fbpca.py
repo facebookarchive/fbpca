@@ -24,7 +24,7 @@ set_matrix_mult
 
 ---------------------------------------------------------------------
 
-Copyright 2014 Facebook Inc.
+Copyright 2018 Facebook Inc.
 All rights reserved.
 
 "Software" means the fbpca software distributed by Facebook Inc.
@@ -199,16 +199,19 @@ def diffsnorm(A, U, s, Va, n_iter=20):
     else:
         isreal = False
 
+    # Promote the types of integer data to float data.
+    dtype = (A * 1.0).dtype
+
     if m >= n:
 
         #
         # Generate a random vector x.
         #
         if isreal:
-            x = np.random.normal(size=(n, 1))
+            x = np.random.normal(size=(n, 1)).astype(dtype)
         else:
-            x = np.random.normal(size=(n, 1)) \
-                + 1j * np.random.normal(size=(n, 1))
+            x = np.random.normal(size=(n, 1)).astype(dtype) \
+                + 1j * np.random.normal(size=(n, 1)).astype(dtype)
 
         x = x / norm(x)
 
@@ -242,10 +245,10 @@ def diffsnorm(A, U, s, Va, n_iter=20):
         # Generate a random vector y.
         #
         if isreal:
-            y = np.random.normal(size=(m, 1))
+            y = np.random.normal(size=(m, 1)).astype(dtype)
         else:
-            y = np.random.normal(size=(m, 1)) \
-                + 1j * np.random.normal(size=(m, 1))
+            y = np.random.normal(size=(m, 1)).astype(dtype) \
+                + 1j * np.random.normal(size=(m, 1)).astype(dtype)
 
         y = y / norm(y)
 
@@ -283,43 +286,59 @@ class TestDiffsnorm(unittest.TestCase):
         logging.info('running TestDiffsnorm.test_dense...')
         logging.info('err =')
 
-        for (m, n) in [(200, 100), (100, 200), (100, 100)]:
-            for isreal in [True, False]:
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for (m, n) in [(200, 100), (100, 200), (100, 100)]:
+                for isreal in [True, False]:
 
-                if isreal:
-                    A = np.random.normal(size=(m, n))
-                if not isreal:
-                    A = np.random.normal(size=(m, n)) \
-                        + 1j * np.random.normal(size=(m, n))
+                    if isreal:
+                        A = np.random.normal(size=(m, n)).astype(dtype)
+                    if not isreal:
+                        A = np.random.normal(size=(m, n)).astype(dtype) \
+                            + 1j * np.random.normal(size=(m, n)).astype(dtype)
 
-                (U, s, Va) = svd(A, full_matrices=False)
-                snorm = diffsnorm(A, U, s, Va)
-                logging.info(snorm)
-                self.assertTrue(snorm < .1e-10 * s[0])
+                    (U, s, Va) = svd(A, full_matrices=False)
+                    snorm = diffsnorm(A, U, s, Va)
+                    logging.info(snorm)
+                    self.assertTrue(snorm < prec * s[0])
 
     def test_sparse(self):
 
         logging.info('running TestDiffsnorm.test_sparse...')
         logging.info('err =')
 
-        for (m, n) in [(200, 100), (100, 200), (100, 100)]:
-            for isreal in [True, False]:
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for (m, n) in [(200, 100), (100, 200), (100, 100)]:
+                for isreal in [True, False]:
 
-                if isreal:
-                    A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n)
-                if not isreal:
-                    A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n) \
-                        * (1 + 1j)
+                    if isreal:
+                        A = 2 * spdiags(
+                            np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
+                    if not isreal:
+                        A = 2 * spdiags(
+                            np.arange(min(m, n)) + 1, 0, m, n).astype(dtype) \
+                            * (1 + 1j)
 
-                A = A - spdiags(np.arange(min(m, n) + 1), 1, m, n)
-                A = A - spdiags(np.arange(min(m, n)) + 1, -1, m, n)
-                (U, s, Va) = svd(A.todense(), full_matrices=False)
-                A = A / s[0]
+                    A = A - spdiags(np.arange(min(m, n) + 1), 1, m, n)
+                    A = A - spdiags(np.arange(min(m, n)) + 1, -1, m, n)
+                    (U, s, Va) = svd(A.todense(), full_matrices=False)
+                    A = A / s[0]
 
-                (U, s, Va) = svd(A.todense(), full_matrices=False)
-                snorm = diffsnorm(A, U, s, Va)
-                logging.info(snorm)
-                self.assertTrue(snorm < .1e-10 * s[0])
+                    (U, s, Va) = svd(A.todense(), full_matrices=False)
+                    snorm = diffsnorm(A, U, s, Va)
+                    logging.info(snorm)
+                    self.assertTrue(snorm < prec * s[0])
 
 
 def diffsnormc(A, U, s, Va, n_iter=20):
@@ -429,6 +448,9 @@ def diffsnormc(A, U, s, Va, n_iter=20):
     else:
         isreal = False
 
+    # Promote the types of integer data to float data.
+    dtype = (A * 1.0).dtype
+
     #
     # Calculate the average of the entries in every column.
     #
@@ -441,10 +463,10 @@ def diffsnormc(A, U, s, Va, n_iter=20):
         # Generate a random vector x.
         #
         if isreal:
-            x = np.random.normal(size=(n, 1))
+            x = np.random.normal(size=(n, 1)).astype(dtype)
         else:
-            x = np.random.normal(size=(n, 1)) \
-                + 1j * np.random.normal(size=(n, 1))
+            x = np.random.normal(size=(n, 1)).astype(dtype) \
+                + 1j * np.random.normal(size=(n, 1)).astype(dtype)
 
         x = x / norm(x)
 
@@ -455,13 +477,13 @@ def diffsnormc(A, U, s, Va, n_iter=20):
             #
             # Set y = (A - ones(m,1)*c - U diag(s) Va)x.
             #
-            y = mult(A, x) - np.ones((m, 1)).dot(c.dot(x)) \
+            y = mult(A, x) - np.ones((m, 1), dtype=dtype).dot(c.dot(x)) \
                 - U.dot(np.diag(s).dot(Va.dot(x)))
             #
             # Set x = (A' - c'*ones(1,m) - Va' diag(s)' U')y.
             #
             x = mult(y.conj().T, A).conj().T \
-                - c.conj().T.dot(np.ones((1, m)).dot(y)) \
+                - c.conj().T.dot(np.ones((1, m), dtype=dtype).dot(y)) \
                 - Va.conj().T.dot(np.diag(s).conj().T.dot(U.conj().T.dot(y)))
 
             #
@@ -480,10 +502,10 @@ def diffsnormc(A, U, s, Va, n_iter=20):
         # Generate a random vector y.
         #
         if isreal:
-            y = np.random.normal(size=(m, 1))
+            y = np.random.normal(size=(m, 1)).astype(dtype)
         else:
-            y = np.random.normal(size=(m, 1)) \
-                + 1j * np.random.normal(size=(m, 1))
+            y = np.random.normal(size=(m, 1)).astype(dtype) \
+                + 1j * np.random.normal(size=(m, 1)).astype(dtype)
 
         y = y / norm(y)
 
@@ -495,12 +517,12 @@ def diffsnormc(A, U, s, Va, n_iter=20):
             # Set x = (A' - c'*ones(1,m) - Va' diag(s)' U')y.
             #
             x = mult(y.conj().T, A).conj().T \
-                - c.conj().T.dot(np.ones((1, m)).dot(y)) \
+                - c.conj().T.dot(np.ones((1, m), dtype=dtype).dot(y)) \
                 - Va.conj().T.dot(np.diag(s).conj().T.dot(U.conj().T.dot(y)))
             #
             # Set y = (A - ones(m,1)*c - U diag(s) Va)x.
             #
-            y = mult(A, x) - np.ones((m, 1)).dot(c.dot(x)) \
+            y = mult(A, x) - np.ones((m, 1), dtype=dtype).dot(c.dot(x)) \
                 - U.dot(np.diag(s).dot(Va.dot(x)))
 
             #
@@ -523,52 +545,68 @@ class TestDiffsnormc(unittest.TestCase):
         logging.info('running TestDiffsnormc.test_dense...')
         logging.info('err =')
 
-        for (m, n) in [(200, 100), (100, 200), (100, 100)]:
-            for isreal in [True, False]:
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for (m, n) in [(200, 100), (100, 200), (100, 100)]:
+                for isreal in [True, False]:
 
-                if isreal:
-                    A = np.random.normal(size=(m, n))
-                if not isreal:
-                    A = np.random.normal(size=(m, n)) \
-                        + 1j * np.random.normal(size=(m, n))
+                    if isreal:
+                        A = np.random.normal(size=(m, n)).astype(dtype)
+                    if not isreal:
+                        A = np.random.normal(size=(m, n)).astype(dtype) \
+                            + 1j * np.random.normal(size=(m, n)).astype(dtype)
 
-                c = A.sum(axis=0) / m
-                c = c.reshape((1, n))
-                Ac = A - np.ones((m, 1)).dot(c)
+                    c = A.sum(axis=0) / m
+                    c = c.reshape((1, n))
+                    Ac = A - np.ones((m, 1), dtype=dtype).dot(c)
 
-                (U, s, Va) = svd(Ac, full_matrices=False)
-                snorm = diffsnormc(A, U, s, Va)
-                logging.info(snorm)
-                self.assertTrue(snorm < .1e-10 * s[0])
+                    (U, s, Va) = svd(Ac, full_matrices=False)
+                    snorm = diffsnormc(A, U, s, Va)
+                    logging.info(snorm)
+                    self.assertTrue(snorm < prec * s[0])
 
     def test_sparse(self):
 
         logging.info('running TestDiffsnormc.test_sparse...')
         logging.info('err =')
 
-        for (m, n) in [(200, 100), (100, 200), (100, 100)]:
-            for isreal in [True, False]:
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for (m, n) in [(200, 100), (100, 200), (100, 100)]:
+                for isreal in [True, False]:
 
-                if isreal:
-                    A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n)
-                if not isreal:
-                    A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n) \
-                        * (1 + 1j)
+                    if isreal:
+                        A = 2 * spdiags(
+                            np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
+                    if not isreal:
+                        A = 2 * spdiags(
+                            np.arange(min(m, n)) + 1, 0, m, n).astype(dtype) \
+                            * (1 + 1j)
 
-                A = A - spdiags(np.arange(min(m, n) + 1), 1, m, n)
-                A = A - spdiags(np.arange(min(m, n)) + 1, -1, m, n)
-                (U, s, Va) = svd(A.todense(), full_matrices=False)
-                A = A / s[0]
+                    A = A - spdiags(np.arange(min(m, n) + 1), 1, m, n)
+                    A = A - spdiags(np.arange(min(m, n)) + 1, -1, m, n)
+                    (U, s, Va) = svd(A.todense(), full_matrices=False)
+                    A = A / s[0]
 
-                Ac = A.todense()
-                c = Ac.sum(axis=0) / m
-                c = c.reshape((1, n))
-                Ac = Ac - np.ones((m, 1)).dot(c)
+                    Ac = A.todense()
+                    c = Ac.sum(axis=0) / m
+                    c = c.reshape((1, n))
+                    Ac = Ac - np.ones((m, 1), dtype=dtype).dot(c)
 
-                (U, s, Va) = svd(Ac, full_matrices=False)
-                snorm = diffsnormc(A, U, s, Va)
-                logging.info(snorm)
-                self.assertTrue(snorm < .1e-10 * s[0])
+                    (U, s, Va) = svd(Ac, full_matrices=False)
+                    snorm = diffsnormc(A, U, s, Va)
+                    logging.info(snorm)
+                    self.assertTrue(snorm < prec * s[0])
 
 
 def diffsnorms(A, S, V, n_iter=20):
@@ -667,13 +705,17 @@ def diffsnorms(A, S, V, n_iter=20):
     else:
         isreal = False
 
+    # Promote the types of integer data to float data.
+    dtype = (A * 1.0).dtype
+
     #
     # Generate a random vector x.
     #
     if isreal:
-        x = np.random.normal(size=(n, 1))
+        x = np.random.normal(size=(n, 1)).astype(dtype)
     else:
-        x = np.random.normal(size=(n, 1)) + 1j * np.random.normal(size=(n, 1))
+        x = np.random.normal(size=(n, 1)).astype(dtype) \
+            + 1j * np.random.normal(size=(n, 1)).astype(dtype)
 
     x = x / norm(x)
 
@@ -711,45 +753,61 @@ class TestDiffsnorms(unittest.TestCase):
         logging.info('running TestDiffsnorms.test_dense...')
         logging.info('err =')
 
-        for n in [100, 200]:
-            for isreal in [True, False]:
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for n in [100, 200]:
+                for isreal in [True, False]:
 
-                if isreal:
-                    A = np.random.normal(size=(n, n))
-                if not isreal:
-                    A = np.random.normal(size=(n, n)) \
-                        + 1j * np.random.normal(size=(n, n))
+                    if isreal:
+                        A = np.random.normal(size=(n, n)).astype(dtype)
+                    if not isreal:
+                        A = np.random.normal(size=(n, n)).astype(dtype) \
+                            + 1j * np.random.normal(size=(n, n)).astype(dtype)
 
-                (U, s, Va) = svd(A, full_matrices=True)
-                T = (np.diag(s).dot(Va)).dot(U)
-                snorm = diffsnorms(A, T, U)
-                logging.info(snorm)
-                self.assertTrue(snorm < .1e-10 * s[0])
+                    (U, s, Va) = svd(A, full_matrices=True)
+                    T = (np.diag(s).dot(Va)).dot(U)
+                    snorm = diffsnorms(A, T, U)
+                    logging.info(snorm)
+                    self.assertTrue(snorm < prec * s[0])
 
     def test_sparse(self):
 
         logging.info('running TestDiffsnorms.test_sparse...')
         logging.info('err =')
 
-        for n in [100, 200]:
-            for isreal in [True, False]:
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for n in [100, 200]:
+                for isreal in [True, False]:
 
-                if isreal:
-                    A = 2 * spdiags(np.arange(n) + 1, 0, n, n)
-                if not isreal:
-                    A = 2 * spdiags(np.arange(n) + 1, 0, n, n) * (1 + 1j)
+                    if isreal:
+                        A = 2 * spdiags(
+                            np.arange(n) + 1, 0, n, n).astype(dtype)
+                    if not isreal:
+                        A = 2 * spdiags(
+                            np.arange(n) + 1, 0, n, n).astype(dtype) * (1 + 1j)
 
-                A = A - spdiags(np.arange(n + 1), 1, n, n)
-                A = A - spdiags(np.arange(n) + 1, -1, n, n)
-                (U, s, Va) = svd(A.todense(), full_matrices=False)
-                A = A / s[0]
-                A = A.tocoo()
+                    A = A - spdiags(np.arange(n + 1), 1, n, n)
+                    A = A - spdiags(np.arange(n) + 1, -1, n, n)
+                    (U, s, Va) = svd(A.todense(), full_matrices=False)
+                    A = A / s[0]
+                    A = A.tocoo()
 
-                (U, s, Va) = svd(A.todense(), full_matrices=True)
-                T = (np.diag(s).dot(Va)).dot(U)
-                snorm = diffsnorms(A, T, U)
-                logging.info(snorm)
-                self.assertTrue(snorm < .1e-10 * s[0])
+                    (U, s, Va) = svd(A.todense(), full_matrices=True)
+                    T = (np.diag(s).dot(Va)).dot(U)
+                    snorm = diffsnorms(A, T, U)
+                    logging.info(snorm)
+                    self.assertTrue(snorm < prec * s[0])
 
 
 def eigenn(A, k=6, n_iter=4, l=None):
@@ -863,14 +921,23 @@ def eigenn(A, k=6, n_iter=4, l=None):
     else:
         isreal = False
 
+    # Promote the types of integer data to float data.
+    dtype = (A * 1.0).dtype
+
     #
     # Check whether A is self-adjoint to nearly the machine precision.
     #
-    x = np.random.uniform(low=-1.0, high=1.0, size=(n, 1))
+    x = np.random.uniform(low=-1.0, high=1.0, size=(n, 1)).astype(dtype)
     y = mult(A, x)
     z = mult(x.conj().T, A).conj().T
-    assert (norm(y - z) <= .1e-11 * norm(y)) and \
-        (norm(y - z) <= .1e-11 * norm(z))
+    if dtype == 'float16':
+        prec = .1e-1
+    elif dtype in ['float32', 'complex64']:
+        prec = .1e-3
+    else:
+        prec = .1e-11
+    assert (norm(y - z) <= prec * norm(y)) and \
+        (norm(y - z) <= prec * norm(z))
 
     #
     # Eigendecompose A directly if l >= n/1.25.
@@ -888,10 +955,11 @@ def eigenn(A, k=6, n_iter=4, l=None):
     # Apply A to a random matrix, obtaining Q.
     #
     if isreal:
-        R = np.random.uniform(low=-1.0, high=1.0, size=(n, l))
+        R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
     if not isreal:
-        R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-            + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l))
+        R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+            .astype(dtype)
 
     Q = mult(A, R)
 
@@ -916,7 +984,7 @@ def eigenn(A, k=6, n_iter=4, l=None):
     #
     for it in range(n_iter):
 
-        cnorm = np.zeros((l))
+        cnorm = np.zeros((l), dtype=dtype)
         for j in range(l):
             cnorm[j] = norm(Q[:, j])
 
@@ -967,17 +1035,17 @@ class TestEigenn(unittest.TestCase):
         errs = []
         err = []
 
-        def eigenntesterrs(n, k, n_iter, isreal, l):
+        def eigenntesterrs(n, k, n_iter, isreal, l, dtype):
 
             if isreal:
-                V = np.random.normal(size=(n, k))
+                V = np.random.normal(size=(n, k)).astype(dtype)
             if not isreal:
-                V = np.random.normal(size=(n, k)) \
-                    + 1j * np.random.normal(size=(n, k))
+                V = np.random.normal(size=(n, k)).astype(dtype) \
+                    + 1j * np.random.normal(size=(n, k)).astype(dtype)
 
             (V, _) = qr(V, mode='economic')
 
-            d0 = np.zeros((k))
+            d0 = np.zeros((k), dtype=dtype)
             d0[0] = 1
             d0[1] = .1
             d0[2] = .01
@@ -988,7 +1056,7 @@ class TestEigenn(unittest.TestCase):
             (d1, V1) = eigh(A)
             (d2, V2) = eigenn(A, k, n_iter, l)
 
-            d3 = np.zeros((n))
+            d3 = np.zeros((n), dtype=dtype)
             for ii in range(k):
                 d3[ii] = d2[ii]
             d3 = sorted(d3)
@@ -998,19 +1066,26 @@ class TestEigenn(unittest.TestCase):
 
             return erra, errsa
 
-        for n in [10, 20]:
-            for k in [3, 9]:
-                for n_iter in [0, 2, 1000]:
-                    for isreal in [True, False]:
-                        l = k + 1
-                        (erra, errsa) = eigenntesterrs(n, k, n_iter, isreal, l)
-                        err.append(erra)
-                        errs.append(errsa)
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for n in [10, 20]:
+                for k in [3, 9]:
+                    for n_iter in [0, 2, 1000]:
+                        for isreal in [True, False]:
+                            l = k + 1
+                            (erra, errsa) = eigenntesterrs(
+                                n, k, n_iter, isreal, l, dtype)
+                            err.append(erra)
+                            errs.append(errsa)
+                            self.assertTrue(erra < prec)
 
         logging.info('errs = \n%s', np.asarray(errs))
         logging.info('err = \n%s', np.asarray(err))
-
-        self.assertTrue(all(err[j] < .1e-10 for j in range(len(err))))
 
     def test_sparse(self):
 
@@ -1020,22 +1095,24 @@ class TestEigenn(unittest.TestCase):
         err = []
         bests = []
 
-        def eigenntestserrs(n, k, n_iter, isreal, l):
+        def eigenntestserrs(n, k, n_iter, isreal, l, dtype):
 
-            n2 = round(n / 2)
+            n2 = int(round(n / 2))
             assert 2 * n2 == n
 
-            A = 2 * spdiags(np.arange(n2) + 1, 0, n, n)
+            A = 2 * spdiags(np.arange(n2) + 1, 0, n, n).astype(dtype)
 
             if isreal:
-                A = A - spdiags(np.arange(n2 + 1), 1, n, n)
-                A = A - spdiags(np.arange(n2) + 1, -1, n, n)
+                A = A - spdiags(np.arange(n2 + 1), 1, n, n).astype(dtype)
+                A = A - spdiags(np.arange(n2) + 1, -1, n, n).astype(dtype)
 
             if not isreal:
-                A = A - 1j * spdiags(np.arange(n2 + 1), 1, n, n)
-                A = A + 1j * spdiags(np.arange(n2) + 1, -1, n, n)
+                A = A - 1j * spdiags(np.arange(n2 + 1), 1, n, n).astype(dtype)
+                A = A + 1j * spdiags(np.arange(n2) + 1, -1, n, n).astype(dtype)
 
-            A = A / diffsnorms(A, np.zeros((2, 2)), np.zeros((n, 2)))
+            A = A / diffsnorms(
+                A, np.zeros((2, 2), dtype=dtype),
+                np.zeros((n, 2), dtype=dtype))
 
             A = A.dot(A)
             A = A.dot(A)
@@ -1053,7 +1130,7 @@ class TestEigenn(unittest.TestCase):
 
             bestsa = sorted(abs(d1))[-k - 1]
 
-            d3 = np.zeros((n))
+            d3 = np.zeros((n), dtype=dtype)
             for ii in range(k):
                 d3[ii] = d2[ii]
             d3 = sorted(d3)
@@ -1063,23 +1140,28 @@ class TestEigenn(unittest.TestCase):
 
             return erra, errsa, bestsa
 
-        for n in [100, 200]:
-            for k in [30, 90]:
-                for n_iter in [2, 1000]:
-                    for isreal in [True, False]:
-                        l = k + 1
-                        (erra, errsa, bestsa) = eigenntestserrs(n, k, n_iter,
-                            isreal, l)
-                        err.append(erra)
-                        errs.append(errsa)
-                        bests.append(bestsa)
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for n in [100, 200]:
+                for k in [30, 90]:
+                    for n_iter in [2, 1000]:
+                        for isreal in [True, False]:
+                            l = k + 1
+                            (erra, errsa, bestsa) = eigenntestserrs(
+                                n, k, n_iter, isreal, l, dtype)
+                            err.append(erra)
+                            errs.append(errsa)
+                            bests.append(bestsa)
+                            self.assertTrue(erra < max(10 * bestsa, prec))
 
         logging.info('errs = \n%s', np.asarray(errs))
         logging.info('err = \n%s', np.asarray(err))
         logging.info('bests = \n%s', np.asarray(bests))
-
-        self.assertTrue(all(err[j] < max(10 * bests[j], .1e-10)
-            for j in range(len(err))))
 
 
 def eigens(A, k=6, n_iter=4, l=None):
@@ -1193,14 +1275,23 @@ def eigens(A, k=6, n_iter=4, l=None):
     else:
         isreal = False
 
+    # Promote the types of integer data to float data.
+    dtype = (A * 1.0).dtype
+
     #
     # Check whether A is self-adjoint to nearly the machine precision.
     #
-    x = np.random.uniform(low=-1.0, high=1.0, size=(n, 1))
+    x = np.random.uniform(low=-1.0, high=1.0, size=(n, 1)).astype(dtype)
     y = mult(A, x)
     z = mult(x.conj().T, A).conj().T
-    assert (norm(y - z) <= .1e-11 * norm(y)) and \
-        (norm(y - z) <= .1e-11 * norm(z))
+    if dtype == 'float16':
+        prec = .1e-1
+    elif dtype in ['float32', 'complex64']:
+        prec = .1e-3
+    else:
+        prec = .1e-11
+    assert (norm(y - z) <= prec * norm(y)) and \
+        (norm(y - z) <= prec * norm(z))
 
     #
     # Eigendecompose A directly if l >= n/1.25.
@@ -1218,10 +1309,13 @@ def eigens(A, k=6, n_iter=4, l=None):
     # Apply A to a random matrix, obtaining Q.
     #
     if isreal:
-        Q = mult(A, np.random.uniform(low=-1.0, high=1.0, size=(n, l)))
+        Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        Q = mult(A, Q)
     if not isreal:
-        Q = mult(A, np.random.uniform(low=-1.0, high=1.0, size=(n, l))
-            + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)))
+        Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        Q = Q + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+            .astype(dtype)
+        Q = mult(A, Q)
 
     #
     # Form a matrix Q whose columns constitute a well-conditioned basis
@@ -1270,17 +1364,17 @@ class TestEigens(unittest.TestCase):
         errs = []
         err = []
 
-        def eigenstesterrs(n, k, n_iter, isreal, l):
+        def eigenstesterrs(n, k, n_iter, isreal, l, dtype):
 
             if isreal:
-                V = np.random.normal(size=(n, k))
+                V = np.random.normal(size=(n, k)).astype(dtype)
             if not isreal:
-                V = np.random.normal(size=(n, k)) \
-                    + 1j * np.random.normal(size=(n, k))
+                V = np.random.normal(size=(n, k)).astype(dtype) \
+                    + 1j * np.random.normal(size=(n, k)).astype(dtype)
 
             (V, _) = qr(V, mode='economic')
 
-            d0 = np.zeros((k))
+            d0 = np.zeros((k), dtype=dtype)
             d0[0] = 1
             d0[1] = -.1
             d0[2] = .01
@@ -1291,7 +1385,7 @@ class TestEigens(unittest.TestCase):
             (d1, V1) = eigh(A)
             (d2, V2) = eigens(A, k, n_iter, l)
 
-            d3 = np.zeros((n))
+            d3 = np.zeros((n), dtype=dtype)
             for ii in range(k):
                 d3[ii] = d2[ii]
             d3 = sorted(d3)
@@ -1301,19 +1395,26 @@ class TestEigens(unittest.TestCase):
 
             return erra, errsa
 
-        for n in [10, 20]:
-            for k in [3, 9]:
-                for n_iter in [0, 2, 1000]:
-                    for isreal in [True, False]:
-                        l = k + 1
-                        (erra, errsa) = eigenstesterrs(n, k, n_iter, isreal, l)
-                        err.append(erra)
-                        errs.append(errsa)
+        for dtype in ['float64', 'float32', 'float16']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for n in [10, 20]:
+                for k in [3, 9]:
+                    for n_iter in [0, 2, 1000]:
+                        for isreal in [True, False]:
+                            l = k + 1
+                            (erra, errsa) = eigenstesterrs(
+                                n, k, n_iter, isreal, l, dtype)
+                            err.append(erra)
+                            errs.append(errsa)
+                            self.assertTrue(erra < prec)
 
         logging.info('errs = \n%s', np.asarray(errs))
         logging.info('err = \n%s', np.asarray(err))
-
-        self.assertTrue(all(err[j] < .1e-10 for j in range(len(err))))
 
     def test_sparse(self):
 
@@ -1323,22 +1424,26 @@ class TestEigens(unittest.TestCase):
         err = []
         bests = []
 
-        def eigenstestserrs(n, k, n_iter, isreal, l):
+        def eigenstestserrs(n, k, n_iter, isreal, l, dtype):
 
-            n2 = round(n / 2)
+            n2 = int(round(n / 2))
             assert 2 * n2 == n
 
-            A = 2 * spdiags(np.arange(n2) + 1, 0, n2, n2)
+            A = 2 * spdiags(np.arange(n2) + 1, 0, n2, n2).astype(dtype)
 
             if isreal:
-                A = A - spdiags(np.arange(n2 + 1), 1, n2, n2)
-                A = A - spdiags(np.arange(n2) + 1, -1, n2, n2)
+                A = A - spdiags(np.arange(n2 + 1), 1, n2, n2).astype(dtype)
+                A = A - spdiags(np.arange(n2) + 1, -1, n2, n2).astype(dtype)
 
             if not isreal:
-                A = A - 1j * spdiags(np.arange(n2 + 1), 1, n2, n2)
-                A = A + 1j * spdiags(np.arange(n2) + 1, -1, n2, n2)
+                A = A - 1j * spdiags(
+                    np.arange(n2 + 1), 1, n2, n2).astype(dtype)
+                A = A + 1j * spdiags(
+                    np.arange(n2) + 1, -1, n2, n2).astype(dtype)
 
-            A = A / diffsnorms(A, np.zeros((2, 2)), np.zeros((n2, 2)))
+            A = A / diffsnorms(
+                A, np.zeros((2, 2), dtype=dtype),
+                np.zeros((n2, 2), dtype=dtype))
 
             A = A.dot(A)
             A = A.dot(A)
@@ -1361,7 +1466,7 @@ class TestEigens(unittest.TestCase):
 
             bestsa = sorted(abs(d1))[-k - 1]
 
-            d3 = np.zeros((n))
+            d3 = np.zeros((n), dtype=dtype)
             for ii in range(k):
                 d3[ii] = d2[ii]
             d3 = sorted(d3)
@@ -1371,23 +1476,28 @@ class TestEigens(unittest.TestCase):
 
             return erra, errsa, bestsa
 
-        for n in [100, 200]:
-            for k in [30, 90]:
-                for n_iter in [2, 1000]:
-                    for isreal in [True, False]:
-                        l = k + 1
-                        (erra, errsa, bestsa) = eigenstestserrs(n, k, n_iter,
-                            isreal, l)
-                        err.append(erra)
-                        errs.append(errsa)
-                        bests.append(bestsa)
+        for dtype in ['float16', 'float32', 'float64']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for n in [100, 200]:
+                for k in [30, 90]:
+                    for n_iter in [2, 1000]:
+                        for isreal in [True, False]:
+                            l = k + 1
+                            (erra, errsa, bestsa) = eigenstestserrs(
+                                n, k, n_iter, isreal, l, dtype)
+                            err.append(erra)
+                            errs.append(errsa)
+                            bests.append(bestsa)
+                            self.assertTrue(erra < max(10 * bestsa, prec))
 
         logging.info('errs = \n%s', np.asarray(errs))
         logging.info('err = \n%s', np.asarray(err))
         logging.info('bests = \n%s', np.asarray(bests))
-
-        self.assertTrue(all(err[j] < max(10 * bests[j], .1e-10)
-            for j in range(len(err))))
 
 
 def pca(A, k=6, raw=False, n_iter=2, l=None):
@@ -1511,14 +1621,17 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
     else:
         isreal = False
 
+    # Promote the types of integer data to float data.
+    dtype = (A * 1.0).dtype
+
     if raw:
 
         #
         # SVD A directly if l >= m/1.25 or l >= n/1.25.
         #
         if l >= m / 1.25 or l >= n / 1.25:
-            (U, s, Va) = svd(A.todense() if issparse(A) else A,
-                full_matrices=False)
+            (U, s, Va) = svd(
+                A.todense() if issparse(A) else A, full_matrices=False)
             #
             # Retain only the leftmost k columns of U, the uppermost
             # k rows of Va, and the first k entries of s.
@@ -1531,10 +1644,15 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply A to a random matrix, obtaining Q.
             #
             if isreal:
-                Q = mult(A, np.random.uniform(low=-1.0, high=1.0, size=(n, l)))
+                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                    .astype(dtype)
+                Q = mult(A, Q)
             if not isreal:
-                Q = mult(A, np.random.uniform(low=-1.0, high=1.0, size=(n, l))
-                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)))
+                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                    .astype(dtype)
+                Q += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                    .astype(dtype)
+                Q = mult(A, Q)
 
             #
             # Form a matrix Q whose columns constitute a
@@ -1583,10 +1701,13 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply A' to a random matrix, obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
+                    .astype(dtype)
             if not isreal:
                 R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m))
+                    .astype(dtype)
+                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
+                    .astype(dtype)
 
             Q = mult(R, A).conj().T
 
@@ -1641,8 +1762,9 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
         # SVD the centered A directly if l >= m/1.25 or l >= n/1.25.
         #
         if l >= m / 1.25 or l >= n / 1.25:
-            (U, s, Va) = svd((A.todense() if issparse(A)
-                else A) - np.ones((m, 1)).dot(c), full_matrices=False)
+            (U, s, Va) = svd(
+                (A.todense() if issparse(A) else A) -
+                np.ones((m, 1), dtype=dtype).dot(c), full_matrices=False)
             #
             # Retain only the leftmost k columns of U, the uppermost
             # k rows of Va, and the first k entries of s.
@@ -1655,12 +1777,15 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply the centered A to a random matrix, obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                    .astype(dtype)
             if not isreal:
                 R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l))
+                    .astype(dtype)
+                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                    .astype(dtype)
 
-            Q = mult(A, R) - np.ones((m, 1)).dot(c.dot(R))
+            Q = mult(A, R) - np.ones((m, 1), dtype=dtype).dot(c.dot(R))
 
             #
             # Form a matrix Q whose columns constitute a
@@ -1676,11 +1801,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             #
             for it in range(n_iter):
 
-                Q = (mult(Q.conj().T, A)
-                    - (Q.conj().T.dot(np.ones((m, 1)))).dot(c)).conj().T
+                Q = mult(Q.conj().T, A) \
+                    - (Q.conj().T.dot(np.ones((m, 1), dtype=dtype))).dot(c)
+                Q = Q.conj().T
                 (Q, _) = lu(Q, permute_l=True)
 
-                Q = mult(A, Q) - np.ones((m, 1)).dot(c.dot(Q))
+                Q = mult(A, Q) - np.ones((m, 1), dtype=dtype).dot(c.dot(Q))
 
                 if it + 1 < n_iter:
                     (Q, _) = lu(Q, permute_l=True)
@@ -1695,7 +1821,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # centered A.
             #
             QA = mult(Q.conj().T, A) \
-                - (Q.conj().T.dot(np.ones((m, 1)))).dot(c)
+                - (Q.conj().T.dot(np.ones((m, 1), dtype=dtype))).dot(c)
             (R, s, Va) = svd(QA, full_matrices=False)
             U = Q.dot(R)
 
@@ -1712,12 +1838,16 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m))
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
+                    .astype(dtype)
             if not isreal:
                 R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    + 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m))
+                    .astype(dtype)
+                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
+                    .astype(dtype)
 
-            Q = (mult(R, A) - (R.dot(np.ones((m, 1)))).dot(c)).conj().T
+            Q = mult(R, A) - (R.dot(np.ones((m, 1), dtype=dtype))).dot(c)
+            Q = Q.conj().T
 
             #
             # Form a matrix Q whose columns constitute a
@@ -1733,11 +1863,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             #
             for it in range(n_iter):
 
-                Q = mult(A, Q) - np.ones((m, 1)).dot(c.dot(Q))
+                Q = mult(A, Q) - np.ones((m, 1), dtype=dtype).dot(c.dot(Q))
                 (Q, _) = lu(Q, permute_l=True)
 
-                Q = (mult(Q.conj().T, A)
-                    - (Q.conj().T.dot(np.ones((m, 1)))).dot(c)).conj().T
+                Q = mult(Q.conj().T, A) \
+                    - (Q.conj().T.dot(np.ones((m, 1), dtype=dtype))).dot(c)
+                Q = Q.conj().T
 
                 if it + 1 < n_iter:
                     (Q, _) = lu(Q, permute_l=True)
@@ -1750,7 +1881,8 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # centered A; adjust the right singular vectors to
             # approximate the right singular vectors of the centered A.
             #
-            (U, s, Ra) = svd(mult(A, Q) - np.ones((m, 1)).dot(c.dot(Q)),
+            (U, s, Ra) = svd(
+                mult(A, Q) - np.ones((m, 1), dtype=dtype).dot(c.dot(Q)),
                 full_matrices=False)
             Va = Ra.dot(Q.conj().T)
 
@@ -1770,27 +1902,27 @@ class TestPCA(unittest.TestCase):
         errs = []
         err = []
 
-        def pcatesterrs(m, n, k, n_iter, raw, isreal, l):
+        def pcatesterrs(m, n, k, n_iter, raw, isreal, l, dtype):
 
             if isreal:
 
-                U = np.random.normal(size=(m, k))
+                U = np.random.normal(size=(m, k)).astype(dtype)
                 (U, _) = qr(U, mode='economic')
 
-                V = np.random.normal(size=(n, k))
+                V = np.random.normal(size=(n, k)).astype(dtype)
                 (V, _) = qr(V, mode='economic')
 
             if not isreal:
 
-                U = np.random.normal(size=(m, k)) \
-                    + 1j * np.random.normal(size=(m, k))
+                U = np.random.normal(size=(m, k)).astype(dtype) \
+                    + 1j * np.random.normal(size=(m, k)).astype(dtype)
                 (U, _) = qr(U, mode='economic')
 
-                V = np.random.normal(size=(n, k)) \
-                    + 1j * np.random.normal(size=(n, k))
+                V = np.random.normal(size=(n, k)).astype(dtype) \
+                    + 1j * np.random.normal(size=(n, k)).astype(dtype)
                 (V, _) = qr(V, mode='economic')
 
-            s0 = np.zeros((k))
+            s0 = np.zeros((k), dtype=dtype)
             s0[0] = 1
             s0[1] = .1
             s0[2] = .01
@@ -1802,12 +1934,12 @@ class TestPCA(unittest.TestCase):
             if not raw:
                 c = A.sum(axis=0) / m
                 c = c.reshape((1, n))
-                Ac = A - np.ones((m, 1)).dot(c)
+                Ac = A - np.ones((m, 1), dtype=dtype).dot(c)
 
             (U, s1, Va) = svd(Ac, full_matrices=False)
             (U, s2, Va) = pca(A, k, raw, n_iter, l)
 
-            s3 = np.zeros((min(m, n)))
+            s3 = np.zeros((min(m, n)), dtype=dtype)
             for ii in range(k):
                 s3[ii] = s2[ii]
             errsa = norm(s1 - s3)
@@ -1819,21 +1951,27 @@ class TestPCA(unittest.TestCase):
 
             return erra, errsa
 
-        for (m, n) in [(20, 10), (10, 20), (20, 20)]:
-            for k in [3, 9]:
-                for n_iter in [0, 2, 1000]:
-                    for raw in [True, False]:
-                        for isreal in [True, False]:
-                            l = k + 1
-                            (erra, errsa) = pcatesterrs(m, n, k, n_iter, raw,
-                                isreal, l)
-                            err.append(erra)
-                            errs.append(errsa)
+        for dtype in ['float64', 'float32', 'float16']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for (m, n) in [(20, 10), (10, 20), (20, 20)]:
+                for k in [3, 9]:
+                    for n_iter in [0, 2, 1000]:
+                        for raw in [True, False]:
+                            for isreal in [True, False]:
+                                l = k + 1
+                                (erra, errsa) = pcatesterrs(
+                                    m, n, k, n_iter, raw, isreal, l, dtype)
+                                err.append(erra)
+                                errs.append(errsa)
+                                self.assertTrue(erra < prec)
 
         logging.info('errs = \n%s', np.asarray(errs))
         logging.info('err = \n%s', np.asarray(err))
-
-        self.assertTrue(all(err[j] < .1e-10 for j in range(len(err))))
 
     def test_sparse(self):
 
@@ -1843,16 +1981,19 @@ class TestPCA(unittest.TestCase):
         err = []
         bests = []
 
-        def pcatestserrs(m, n, k, n_iter, raw, isreal, l):
+        def pcatestserrs(m, n, k, n_iter, raw, isreal, l, dtype):
 
             if isreal:
                 A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n)
             if not isreal:
-                A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n) * (1 + 1j)
+                A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n)
+                A = A.astype(dtype) * (1 + 1j)
 
             A = A - spdiags(np.arange(min(m, n) + 1), 1, m, n)
             A = A - spdiags(np.arange(min(m, n)) + 1, -1, m, n)
-            A = A / diffsnorm(A, np.zeros((m, 2)), [0, 0], np.zeros((2, n)))
+            A = A / diffsnorm(
+                A, np.zeros((m, 2), dtype=dtype), [0, 0],
+                np.zeros((2, n), dtype=dtype))
             A = A.dot(A.conj().T.dot(A))
             A = A.dot(A.conj().T.dot(A))
             A = A[np.random.permutation(m), :]
@@ -1863,7 +2004,7 @@ class TestPCA(unittest.TestCase):
             if not raw:
                 c = A.sum(axis=0) / m
                 c = c.reshape((1, n))
-                Ac = A - np.ones((m, 1)).dot(c)
+                Ac = A - np.ones((m, 1), dtype=dtype).dot(c)
 
             if raw:
                 (U, s1, Va) = svd(Ac.toarray(), full_matrices=False)
@@ -1874,7 +2015,7 @@ class TestPCA(unittest.TestCase):
 
             bestsa = s1[k]
 
-            s3 = np.zeros((min(m, n)))
+            s3 = np.zeros((min(m, n)), dtype=dtype)
             for ii in range(k):
                 s3[ii] = s2[ii]
             errsa = norm(s1 - s3)
@@ -1886,24 +2027,29 @@ class TestPCA(unittest.TestCase):
 
             return erra, errsa, bestsa
 
-        for (m, n) in [(200, 100), (100, 200), (100, 100)]:
-            for k in [30, 90]:
-                for n_iter in [2, 1000]:
-                    for raw in [True, False]:
-                        for isreal in [True, False]:
-                            l = k + 1
-                            (erra, errsa, bestsa) = pcatestserrs(m, n, k,
-                                n_iter, raw, isreal, l)
-                            err.append(erra)
-                            errs.append(errsa)
-                            bests.append(bestsa)
+        for dtype in ['float64', 'float32', 'float16']:
+            if dtype == 'float64':
+                prec = .1e-10
+            elif dtype == 'float32':
+                prec = .1e-2
+            else:
+                prec = .1e0
+            for (m, n) in [(200, 100), (100, 200), (100, 100)]:
+                for k in [30, 90]:
+                    for n_iter in [2, 1000]:
+                        for raw in [True, False]:
+                            for isreal in [True, False]:
+                                l = k + 1
+                                (erra, errsa, bestsa) = pcatestserrs(
+                                    m, n, k, n_iter, raw, isreal, l, dtype)
+                                err.append(erra)
+                                errs.append(errsa)
+                                bests.append(bestsa)
+                                self.assertTrue(erra < max(10 * bestsa, prec))
 
         logging.info('errs = \n%s', np.asarray(errs))
         logging.info('err = \n%s', np.asarray(err))
         logging.info('bests = \n%s', np.asarray(bests))
-
-        self.assertTrue(all(err[j] < max(10 * bests[j], .1e-10)
-            for j in range(len(err))))
 
 
 def mult(A, B):
