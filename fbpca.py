@@ -955,10 +955,10 @@ def eigenn(A, k=6, n_iter=4, l=None):
     # Apply A to a random matrix, obtaining Q.
     #
     if isreal:
-        R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        R = np.random.normal(size=(n, l)).astype(dtype)
     if not isreal:
-        R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
-        R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+        R = np.random.normal(scale=1.0/np.sqrt(2.0), size=(n, l)).astype(dtype)
+        R += 1j * np.random.normal(scale=1.0/np.sqrt(2.0), size=(n, l)) \
             .astype(dtype)
 
     Q = mult(A, R)
@@ -1309,11 +1309,11 @@ def eigens(A, k=6, n_iter=4, l=None):
     # Apply A to a random matrix, obtaining Q.
     #
     if isreal:
-        Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        Q = np.random.normal(size=(n, l)).astype(dtype)
         Q = mult(A, Q)
     if not isreal:
-        Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
-        Q = Q + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+        Q = np.random.normal(scale=1.0/np.sqrt(2.0), size=(n, l)).astype(dtype)
+        Q += 1j * np.random.normal(scale=1.0/np.sqrt(2.0), size=(n, l)) \
             .astype(dtype)
         Q = mult(A, Q)
 
@@ -1644,13 +1644,13 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply A to a random matrix, obtaining Q.
             #
             if isreal:
-                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    .astype(dtype)
+                Q = np.random.normal(size=(n, l)).astype(dtype)
                 Q = mult(A, Q)
             if not isreal:
-                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                Q = np.random.normal(scale=1.0/np.sqrt(2.0), size=(n, l)) \
                     .astype(dtype)
-                Q += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                Q += 1j * \
+                    np.random.normal(scale=1.0/np.sqrt(2.0), size=(n, l)) \
                     .astype(dtype)
                 Q = mult(A, Q)
 
@@ -1701,12 +1701,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply A' to a random matrix, obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    .astype(dtype)
+                R = np.random.normal(size=(l, m)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
+                R = np.random.normal(scale=1.0/np.sqrt(2.0), size=(l, m)) \
                     .astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
+                R += 1j * \
+                    np.random.normal(scale=1.0/np.sqrt(2.0), size=(l, m)) \
                     .astype(dtype)
 
             Q = mult(R, A).conj().T
@@ -1777,12 +1777,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply the centered A to a random matrix, obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    .astype(dtype)
+                R = np.random.normal(size=(n, l)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                R = np.random.normal(scale=1.0/np.sqrt(2.0), size=(n, l)) \
                     .astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
+                R += 1j * \
+                    np.random.normal(scale=1.0/np.sqrt(2.0), size=(n, l)) \
                     .astype(dtype)
 
             Q = mult(A, R) - np.ones((m, 1), dtype=dtype).dot(c.dot(R))
@@ -1838,12 +1838,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    .astype(dtype)
+                R = np.random.normal(size=(l, m)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
+                R = np.random.normal(scale=1.0/np.sqrt(2.0), size=(l, m)) \
                     .astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
+                R += 1j * \
+                    np.random.normal(scale=1.0/np.sqrt(2.0), size=(l, m)) \
                     .astype(dtype)
 
             Q = mult(R, A) - (R.dot(np.ones((m, 1), dtype=dtype))).dot(c)
