@@ -89,13 +89,14 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import math
+import numbers
 
 import numpy as np
 from scipy.linalg import cholesky, eigh, lu, qr, svd, norm, solve
 from scipy.sparse import issparse
 
 
-def diffsnorm(A, U, s, Va, n_iter=20):
+def diffsnorm(A, U, s, Va, n_iter=20, random_state=None):
     """
     2-norm accuracy of an approx to a matrix.
 
@@ -106,11 +107,6 @@ def diffsnorm(A, U, s, Va, n_iter=20):
 
     Increasing n_iter improves the accuracy of the estimate snorm of
     the spectral norm of A - U diag(s) Va.
-
-    Notes
-    -----
-    To obtain repeatable results, reset the seed for the pseudorandom
-    number generator.
 
     Parameters
     ----------
@@ -129,6 +125,11 @@ def diffsnorm(A, U, s, Va, n_iter=20):
     n_iter : int, optional
         number of iterations of the power method to conduct;
         n_iter must be a positive integer, and defaults to 20
+    random_state : int, RandomState instance or None, optional (default None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
 
     Returns
     -------
@@ -191,6 +192,8 @@ def diffsnorm(A, U, s, Va, n_iter=20):
 
     assert n_iter >= 1
 
+    random_state = check_random_state(random_state)
+
     if np.isrealobj(A) and np.isrealobj(U) and np.isrealobj(s) and np.isrealobj(Va):
         isreal = True
     else:
@@ -203,11 +206,11 @@ def diffsnorm(A, U, s, Va, n_iter=20):
 
         # Generate a random vector x.
         if isreal:
-            x = np.random.normal(size=(n, 1)).astype(dtype)
+            x = random_state.normal(size=(n, 1)).astype(dtype)
         else:
-            x = np.random.normal(size=(n, 1)).astype(dtype) + 1j * np.random.normal(
-                size=(n, 1)
-            ).astype(dtype)
+            x = random_state.normal(size=(n, 1)).astype(
+                dtype
+            ) + 1j * random_state.normal(size=(n, 1)).astype(dtype)
 
         x = x / norm(x)
 
@@ -232,11 +235,11 @@ def diffsnorm(A, U, s, Va, n_iter=20):
 
         # Generate a random vector y.
         if isreal:
-            y = np.random.normal(size=(m, 1)).astype(dtype)
+            y = random_state.normal(size=(m, 1)).astype(dtype)
         else:
-            y = np.random.normal(size=(m, 1)).astype(dtype) + 1j * np.random.normal(
-                size=(m, 1)
-            ).astype(dtype)
+            y = random_state.normal(size=(m, 1)).astype(
+                dtype
+            ) + 1j * random_state.normal(size=(m, 1)).astype(dtype)
 
         y = y / norm(y)
 
@@ -260,7 +263,7 @@ def diffsnorm(A, U, s, Va, n_iter=20):
     return snorm
 
 
-def diffsnormc(A, U, s, Va, n_iter=20):
+def diffsnormc(A, U, s, Va, n_iter=20, random_state=None):
     """
     2-norm approx error to a matrix upon centering.
 
@@ -273,11 +276,6 @@ def diffsnormc(A, U, s, Va, n_iter=20):
     Increasing n_iter improves the accuracy of the estimate snorm of
     the spectral norm of C(A) - U diag(s) Va, where C(A) refers to A
     after centering its columns.
-
-    Notes
-    -----
-    To obtain repeatable results, reset the seed for the pseudorandom
-    number generator.
 
     Parameters
     ----------
@@ -296,6 +294,11 @@ def diffsnormc(A, U, s, Va, n_iter=20):
     n_iter : int, optional
         number of iterations of the power method to conduct;
         n_iter must be a positive integer, and defaults to 20
+    random_state : int, RandomState instance or None, optional (default None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
 
     Returns
     -------
@@ -360,6 +363,8 @@ def diffsnormc(A, U, s, Va, n_iter=20):
 
     assert n_iter >= 1
 
+    random_state = check_random_state(random_state)
+
     if np.isrealobj(A) and np.isrealobj(U) and np.isrealobj(s) and np.isrealobj(Va):
         isreal = True
     else:
@@ -376,11 +381,11 @@ def diffsnormc(A, U, s, Va, n_iter=20):
 
         # Generate a random vector x.
         if isreal:
-            x = np.random.normal(size=(n, 1)).astype(dtype)
+            x = random_state.normal(size=(n, 1)).astype(dtype)
         else:
-            x = np.random.normal(size=(n, 1)).astype(dtype) + 1j * np.random.normal(
-                size=(n, 1)
-            ).astype(dtype)
+            x = random_state.normal(size=(n, 1)).astype(
+                dtype
+            ) + 1j * random_state.normal(size=(n, 1)).astype(dtype)
 
         x = x / norm(x)
 
@@ -411,11 +416,11 @@ def diffsnormc(A, U, s, Va, n_iter=20):
 
         # Generate a random vector y.
         if isreal:
-            y = np.random.normal(size=(m, 1)).astype(dtype)
+            y = random_state.normal(size=(m, 1)).astype(dtype)
         else:
-            y = np.random.normal(size=(m, 1)).astype(dtype) + 1j * np.random.normal(
-                size=(m, 1)
-            ).astype(dtype)
+            y = random_state.normal(size=(m, 1)).astype(
+                dtype
+            ) + 1j * random_state.normal(size=(m, 1)).astype(dtype)
 
         y = y / norm(y)
 
@@ -445,7 +450,7 @@ def diffsnormc(A, U, s, Va, n_iter=20):
     return snorm
 
 
-def diffsnorms(A, S, V, n_iter=20):
+def diffsnorms(A, S, V, n_iter=20, random_state=None):
     """
     2-norm accuracy of a Schur decomp. of a matrix.
 
@@ -456,11 +461,6 @@ def diffsnorms(A, S, V, n_iter=20):
 
     Increasing n_iter improves the accuracy of the estimate snorm of
     the spectral norm of A-VSV'.
-
-    Notes
-    -----
-    To obtain repeatable results, reset the seed for the pseudorandom
-    number generator.
 
     Parameters
     ----------
@@ -473,6 +473,11 @@ def diffsnorms(A, S, V, n_iter=20):
     n_iter : int, optional
         number of iterations of the power method to conduct;
         n_iter must be a positive integer, and defaults to 20
+    random_state : int, RandomState instance or None, optional (default None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
 
     Returns
     -------
@@ -535,6 +540,8 @@ def diffsnorms(A, S, V, n_iter=20):
 
     assert n_iter >= 1
 
+    random_state = check_random_state(random_state)
+
     if np.isrealobj(A) and np.isrealobj(V) and np.isrealobj(S):
         isreal = True
     else:
@@ -545,9 +552,9 @@ def diffsnorms(A, S, V, n_iter=20):
 
     # Generate a random vector x.
     if isreal:
-        x = np.random.normal(size=(n, 1)).astype(dtype)
+        x = random_state.normal(size=(n, 1)).astype(dtype)
     else:
-        x = np.random.normal(size=(n, 1)).astype(dtype) + 1j * np.random.normal(
+        x = random_state.normal(size=(n, 1)).astype(dtype) + 1j * random_state.normal(
             size=(n, 1)
         ).astype(dtype)
 
@@ -571,7 +578,7 @@ def diffsnorms(A, S, V, n_iter=20):
     return snorm
 
 
-def eigenn(A, k=6, n_iter=4, l=None):
+def eigenn(A, k=6, n_iter=4, l=None, random_state=None):
     """
     Eigendecomposition of a NONNEGATIVE-DEFINITE matrix.
 
@@ -600,9 +607,6 @@ def eigenn(A, k=6, n_iter=4, l=None):
     -----
     THE MATRIX A MUST BE SELF-ADJOINT AND NONNEGATIVE DEFINITE.
 
-    To obtain repeatable results, reset the seed for the pseudorandom
-    number generator.
-
     The user may ascertain the accuracy of the approximation
     V diag(d) V' to A by invoking diffsnorms(A, numpy.diag(d), V).
 
@@ -620,6 +624,11 @@ def eigenn(A, k=6, n_iter=4, l=None):
     l : int, optional
         block size of the normalized power iterations;
         l must be a positive integer >= k, and defaults to k+2
+    random_state : int, RandomState instance or None, optional (default None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
 
     Returns
     -------
@@ -676,6 +685,8 @@ def eigenn(A, k=6, n_iter=4, l=None):
     assert n_iter >= 0
     assert l >= k
 
+    random_state = check_random_state(random_state)
+
     if np.isrealobj(A):
         isreal = True
     else:
@@ -685,7 +696,7 @@ def eigenn(A, k=6, n_iter=4, l=None):
     dtype = (A * 1.0).dtype
 
     # Check whether A is self-adjoint to nearly the machine precision.
-    x = np.random.uniform(low=-1.0, high=1.0, size=(n, 1)).astype(dtype)
+    x = random_state.uniform(low=-1.0, high=1.0, size=(n, 1)).astype(dtype)
     y = mult(A, x)
     z = mult(x.conj().T, A).conj().T
     if dtype == "float16":
@@ -706,10 +717,10 @@ def eigenn(A, k=6, n_iter=4, l=None):
 
     # Apply A to a random matrix, obtaining Q.
     if isreal:
-        R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        R = random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
     if not isreal:
-        R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
-        R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        R = random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        R += 1j * random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
 
     Q = mult(A, R)
 
@@ -767,7 +778,7 @@ def eigenn(A, k=6, n_iter=4, l=None):
     return abs(d[idx]), V[:, idx]
 
 
-def eigens(A, k=6, n_iter=4, l=None):
+def eigens(A, k=6, n_iter=4, l=None, random_state=None):
     """
     Eigendecomposition of a SELF-ADJOINT matrix.
 
@@ -795,9 +806,6 @@ def eigens(A, k=6, n_iter=4, l=None):
     -----
     THE MATRIX A MUST BE SELF-ADJOINT.
 
-    To obtain repeatable results, reset the seed for the pseudorandom
-    number generator.
-
     The user may ascertain the accuracy of the approximation
     V diag(d) V' to A by invoking diffsnorms(A, numpy.diag(d), V).
 
@@ -815,6 +823,11 @@ def eigens(A, k=6, n_iter=4, l=None):
     l : int, optional
         block size of the normalized power iterations;
         l must be a positive integer >= k, and defaults to k+2
+    random_state : int, RandomState instance or None, optional (default None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
 
     Returns
     -------
@@ -872,6 +885,8 @@ def eigens(A, k=6, n_iter=4, l=None):
     assert n_iter >= 0
     assert l >= k
 
+    random_state = check_random_state(random_state)
+
     if np.isrealobj(A):
         isreal = True
     else:
@@ -881,7 +896,7 @@ def eigens(A, k=6, n_iter=4, l=None):
     dtype = (A * 1.0).dtype
 
     # Check whether A is self-adjoint to nearly the machine precision.
-    x = np.random.uniform(low=-1.0, high=1.0, size=(n, 1)).astype(dtype)
+    x = random_state.uniform(low=-1.0, high=1.0, size=(n, 1)).astype(dtype)
     y = mult(A, x)
     z = mult(x.conj().T, A).conj().T
     if dtype == "float16":
@@ -902,11 +917,11 @@ def eigens(A, k=6, n_iter=4, l=None):
 
     # Apply A to a random matrix, obtaining Q.
     if isreal:
-        Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        Q = random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
         Q = mult(A, Q)
     if not isreal:
-        Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
-        Q = Q + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        Q = random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+        Q = Q + 1j * random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
         Q = mult(A, Q)
 
     # Form a matrix Q whose columns constitute a well-conditioned basis
@@ -939,7 +954,7 @@ def eigens(A, k=6, n_iter=4, l=None):
     return d[idx], V[:, idx]
 
 
-def pca(A, k=6, raw=False, n_iter=2, l=None):
+def pca(A, k=6, raw=False, n_iter=2, l=None, random_state=None):
     """
     Principal component analysis.
 
@@ -968,9 +983,6 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
 
     Notes
     -----
-    To obtain repeatable results, reset the seed for the pseudorandom
-    number generator.
-
     The user may ascertain the accuracy of the approximation
     U diag(s) Va to A by invoking diffsnorm(A, U, s, Va), when raw is
     True. The user may ascertain the accuracy of the approximation
@@ -994,6 +1006,11 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
     l : int, optional
         block size of the normalized power iterations;
         l must be a positive integer >= k, and defaults to k+2
+    random_state : int, RandomState instance or None, optional (default None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.
 
     Returns
     -------
@@ -1054,6 +1071,8 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
     assert n_iter >= 0
     assert l >= k
 
+    random_state = check_random_state(random_state)
+
     if np.isrealobj(A):
         isreal = True
     else:
@@ -1075,11 +1094,11 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
 
             # Apply A to a random matrix, obtaining Q.
             if isreal:
-                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+                Q = random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
                 Q = mult(A, Q)
             if not isreal:
-                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
-                Q += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(
+                Q = random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+                Q += 1j * random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(
                     dtype
                 )
                 Q = mult(A, Q)
@@ -1121,10 +1140,10 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
 
             # Apply A' to a random matrix, obtaining Q.
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
+                R = random_state.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(
+                R = random_state.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
+                R += 1j * random_state.uniform(low=-1.0, high=1.0, size=(l, m)).astype(
                     dtype
                 )
 
@@ -1182,10 +1201,10 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
 
             # Apply the centered A to a random matrix, obtaining Q.
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+                R = random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(
+                R = random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+                R += 1j * random_state.uniform(low=-1.0, high=1.0, size=(n, l)).astype(
                     dtype
                 )
 
@@ -1234,10 +1253,10 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply the adjoint of the centered A to a random matrix,
             # obtaining Q.
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
+                R = random_state.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(
+                R = random_state.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
+                R += 1j * random_state.uniform(low=-1.0, high=1.0, size=(l, m)).astype(
                     dtype
                 )
 
@@ -1353,3 +1372,24 @@ def set_matrix_mult(newmult):
     """
     global mult
     mult = newmult
+
+
+def check_random_state(seed):
+    """Turn seed into a np.random.RandomState instance.
+    Parameters
+    ----------
+    seed : None | int | instance of RandomState
+        If seed is None, return the RandomState singleton used by np.random.
+        If seed is an int, return a new RandomState instance seeded with seed.
+        If seed is already a RandomState instance, return it.
+        Otherwise raise ValueError.
+    """
+    if seed is None or seed is np.random:
+        return np.random.mtrand._rand
+    if isinstance(seed, (numbers.Integral, np.integer)):
+        return np.random.RandomState(seed)
+    if isinstance(seed, np.random.RandomState):
+        return seed
+    raise ValueError(
+        "%r cannot be used to seed a numpy.random.RandomState" " instance" % seed
+    )
