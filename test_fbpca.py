@@ -68,27 +68,27 @@ from fbpca import diffsnorm, diffsnormc, diffsnorms, eigenn, eigens, pca
 
 
 class TestDiffsnorm(unittest.TestCase):
-
     def test_dense(self):
 
-        logging.info('running TestDiffsnorm.test_dense...')
-        logging.info('err =')
+        logging.info("running TestDiffsnorm.test_dense...")
+        logging.info("err =")
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for isreal in [True, False]:
 
                     if isreal:
                         A = np.random.normal(size=(m, n)).astype(dtype)
                     if not isreal:
-                        A = np.random.normal(size=(m, n)).astype(dtype) \
-                            + 1j * np.random.normal(size=(m, n)).astype(dtype)
+                        A = np.random.normal(size=(m, n)).astype(
+                            dtype
+                        ) + 1j * np.random.normal(size=(m, n)).astype(dtype)
 
                     (U, s, Va) = svd(A, full_matrices=False)
                     snorm = diffsnorm(A, U, s, Va)
@@ -97,26 +97,27 @@ class TestDiffsnorm(unittest.TestCase):
 
     def test_sparse(self):
 
-        logging.info('running TestDiffsnorm.test_sparse...')
-        logging.info('err =')
+        logging.info("running TestDiffsnorm.test_sparse...")
+        logging.info("err =")
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for isreal in [True, False]:
 
                     if isreal:
-                        A = 2 * spdiags(
-                            np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
+                        A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
                     if not isreal:
-                        A = 2 * spdiags(
-                            np.arange(min(m, n)) + 1, 0, m, n).astype(dtype) \
+                        A = (
+                            2
+                            * spdiags(np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
                             * (1 + 1j)
+                        )
 
                     A = A - spdiags(np.arange(min(m, n) + 1), 1, m, n)
                     A = A - spdiags(np.arange(min(m, n)) + 1, -1, m, n)
@@ -130,27 +131,27 @@ class TestDiffsnorm(unittest.TestCase):
 
 
 class TestDiffsnormc(unittest.TestCase):
-
     def test_dense(self):
 
-        logging.info('running TestDiffsnormc.test_dense...')
-        logging.info('err =')
+        logging.info("running TestDiffsnormc.test_dense...")
+        logging.info("err =")
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for isreal in [True, False]:
 
                     if isreal:
                         A = np.random.normal(size=(m, n)).astype(dtype)
                     if not isreal:
-                        A = np.random.normal(size=(m, n)).astype(dtype) \
-                            + 1j * np.random.normal(size=(m, n)).astype(dtype)
+                        A = np.random.normal(size=(m, n)).astype(
+                            dtype
+                        ) + 1j * np.random.normal(size=(m, n)).astype(dtype)
 
                     c = A.sum(axis=0) / m
                     c = c.reshape((1, n))
@@ -163,26 +164,27 @@ class TestDiffsnormc(unittest.TestCase):
 
     def test_sparse(self):
 
-        logging.info('running TestDiffsnormc.test_sparse...')
-        logging.info('err =')
+        logging.info("running TestDiffsnormc.test_sparse...")
+        logging.info("err =")
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for isreal in [True, False]:
 
                     if isreal:
-                        A = 2 * spdiags(
-                            np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
+                        A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
                     if not isreal:
-                        A = 2 * spdiags(
-                            np.arange(min(m, n)) + 1, 0, m, n).astype(dtype) \
+                        A = (
+                            2
+                            * spdiags(np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
                             * (1 + 1j)
+                        )
 
                     A = A - spdiags(np.arange(min(m, n) + 1), 1, m, n)
                     A = A - spdiags(np.arange(min(m, n)) + 1, -1, m, n)
@@ -201,27 +203,27 @@ class TestDiffsnormc(unittest.TestCase):
 
 
 class TestDiffsnorms(unittest.TestCase):
-
     def test_dense(self):
 
-        logging.info('running TestDiffsnorms.test_dense...')
-        logging.info('err =')
+        logging.info("running TestDiffsnorms.test_dense...")
+        logging.info("err =")
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for n in [100, 200]:
                 for isreal in [True, False]:
 
                     if isreal:
                         A = np.random.normal(size=(n, n)).astype(dtype)
                     if not isreal:
-                        A = np.random.normal(size=(n, n)).astype(dtype) \
-                            + 1j * np.random.normal(size=(n, n)).astype(dtype)
+                        A = np.random.normal(size=(n, n)).astype(
+                            dtype
+                        ) + 1j * np.random.normal(size=(n, n)).astype(dtype)
 
                     (U, s, Va) = svd(A, full_matrices=True)
                     T = (np.diag(s).dot(Va)).dot(U)
@@ -231,25 +233,27 @@ class TestDiffsnorms(unittest.TestCase):
 
     def test_sparse(self):
 
-        logging.info('running TestDiffsnorms.test_sparse...')
-        logging.info('err =')
+        logging.info("running TestDiffsnorms.test_sparse...")
+        logging.info("err =")
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for n in [100, 200]:
                 for isreal in [True, False]:
 
                     if isreal:
-                        A = 2 * spdiags(
-                            np.arange(n) + 1, 0, n, n).astype(dtype)
+                        A = 2 * spdiags(np.arange(n) + 1, 0, n, n).astype(dtype)
                     if not isreal:
-                        A = 2 * spdiags(
-                            np.arange(n) + 1, 0, n, n).astype(dtype) * (1 + 1j)
+                        A = (
+                            2
+                            * spdiags(np.arange(n) + 1, 0, n, n).astype(dtype)
+                            * (1 + 1j)
+                        )
 
                     A = A - spdiags(np.arange(n + 1), 1, n, n)
                     A = A - spdiags(np.arange(n) + 1, -1, n, n)
@@ -265,10 +269,9 @@ class TestDiffsnorms(unittest.TestCase):
 
 
 class TestEigenn(unittest.TestCase):
-
     def test_dense(self):
 
-        logging.info('running TestEigenn.test_dense...')
+        logging.info("running TestEigenn.test_dense...")
 
         errs = []
         err = []
@@ -278,15 +281,16 @@ class TestEigenn(unittest.TestCase):
             if isreal:
                 V = np.random.normal(size=(n, k)).astype(dtype)
             if not isreal:
-                V = np.random.normal(size=(n, k)).astype(dtype) \
-                    + 1j * np.random.normal(size=(n, k)).astype(dtype)
+                V = np.random.normal(size=(n, k)).astype(dtype) + 1j * np.random.normal(
+                    size=(n, k)
+                ).astype(dtype)
 
-            (V, _) = qr(V, mode='economic')
+            (V, _) = qr(V, mode="economic")
 
             d0 = np.zeros((k), dtype=dtype)
             d0[0] = 1
-            d0[1] = .1
-            d0[2] = .01
+            d0[1] = 0.1
+            d0[2] = 0.01
 
             A = V.dot(np.diag(d0).dot(V.conj().T))
             A = (A + A.conj().T) / 2
@@ -304,30 +308,31 @@ class TestEigenn(unittest.TestCase):
 
             return erra, errsa
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for n in [10, 20]:
                 for k in [3, 9]:
                     for n_iter in [0, 2, 1000]:
                         for isreal in [True, False]:
                             l = k + 1
                             (erra, errsa) = eigenntesterrs(
-                                n, k, n_iter, isreal, l, dtype)
+                                n, k, n_iter, isreal, l, dtype
+                            )
                             err.append(erra)
                             errs.append(errsa)
                             self.assertTrue(erra < prec)
 
-        logging.info('errs = \n%s', np.asarray(errs))
-        logging.info('err = \n%s', np.asarray(err))
+        logging.info("errs = \n%s", np.asarray(errs))
+        logging.info("err = \n%s", np.asarray(err))
 
     def test_sparse(self):
 
-        logging.info('running TestEigenn.test_sparse...')
+        logging.info("running TestEigenn.test_sparse...")
 
         errs = []
         err = []
@@ -349,8 +354,8 @@ class TestEigenn(unittest.TestCase):
                 A = A + 1j * spdiags(np.arange(n2) + 1, -1, n, n).astype(dtype)
 
             A = A / diffsnorms(
-                A, np.zeros((2, 2), dtype=dtype),
-                np.zeros((n, 2), dtype=dtype))
+                A, np.zeros((2, 2), dtype=dtype), np.zeros((n, 2), dtype=dtype)
+            )
 
             A = A.dot(A)
             A = A.dot(A)
@@ -378,35 +383,35 @@ class TestEigenn(unittest.TestCase):
 
             return erra, errsa, bestsa
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for n in [100, 200]:
                 for k in [30, 90]:
                     for n_iter in [2, 1000]:
                         for isreal in [True, False]:
                             l = k + 1
                             (erra, errsa, bestsa) = eigenntestserrs(
-                                n, k, n_iter, isreal, l, dtype)
+                                n, k, n_iter, isreal, l, dtype
+                            )
                             err.append(erra)
                             errs.append(errsa)
                             bests.append(bestsa)
                             self.assertTrue(erra < max(10 * bestsa, prec))
 
-        logging.info('errs = \n%s', np.asarray(errs))
-        logging.info('err = \n%s', np.asarray(err))
-        logging.info('bests = \n%s', np.asarray(bests))
+        logging.info("errs = \n%s", np.asarray(errs))
+        logging.info("err = \n%s", np.asarray(err))
+        logging.info("bests = \n%s", np.asarray(bests))
 
 
 class TestEigens(unittest.TestCase):
-
     def test_dense(self):
 
-        logging.info('running TestEigens.test_dense...')
+        logging.info("running TestEigens.test_dense...")
 
         errs = []
         err = []
@@ -416,15 +421,16 @@ class TestEigens(unittest.TestCase):
             if isreal:
                 V = np.random.normal(size=(n, k)).astype(dtype)
             if not isreal:
-                V = np.random.normal(size=(n, k)).astype(dtype) \
-                    + 1j * np.random.normal(size=(n, k)).astype(dtype)
+                V = np.random.normal(size=(n, k)).astype(dtype) + 1j * np.random.normal(
+                    size=(n, k)
+                ).astype(dtype)
 
-            (V, _) = qr(V, mode='economic')
+            (V, _) = qr(V, mode="economic")
 
             d0 = np.zeros((k), dtype=dtype)
             d0[0] = 1
-            d0[1] = -.1
-            d0[2] = .01
+            d0[1] = -0.1
+            d0[2] = 0.01
 
             A = V.dot(np.diag(d0).dot(V.conj().T))
             A = (A + A.conj().T) / 2
@@ -442,30 +448,31 @@ class TestEigens(unittest.TestCase):
 
             return erra, errsa
 
-        for dtype in ['float64', 'float32', 'float16']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float64", "float32", "float16"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for n in [10, 20]:
                 for k in [3, 9]:
                     for n_iter in [0, 2, 1000]:
                         for isreal in [True, False]:
                             l = k + 1
                             (erra, errsa) = eigenstesterrs(
-                                n, k, n_iter, isreal, l, dtype)
+                                n, k, n_iter, isreal, l, dtype
+                            )
                             err.append(erra)
                             errs.append(errsa)
                             self.assertTrue(erra < prec)
 
-        logging.info('errs = \n%s', np.asarray(errs))
-        logging.info('err = \n%s', np.asarray(err))
+        logging.info("errs = \n%s", np.asarray(errs))
+        logging.info("err = \n%s", np.asarray(err))
 
     def test_sparse(self):
 
-        logging.info('running TestEigens.test_sparse...')
+        logging.info("running TestEigens.test_sparse...")
 
         errs = []
         err = []
@@ -483,14 +490,12 @@ class TestEigens(unittest.TestCase):
                 A = A - spdiags(np.arange(n2) + 1, -1, n2, n2).astype(dtype)
 
             if not isreal:
-                A = A - 1j * spdiags(
-                    np.arange(n2 + 1), 1, n2, n2).astype(dtype)
-                A = A + 1j * spdiags(
-                    np.arange(n2) + 1, -1, n2, n2).astype(dtype)
+                A = A - 1j * spdiags(np.arange(n2 + 1), 1, n2, n2).astype(dtype)
+                A = A + 1j * spdiags(np.arange(n2) + 1, -1, n2, n2).astype(dtype)
 
             A = A / diffsnorms(
-                A, np.zeros((2, 2), dtype=dtype),
-                np.zeros((n2, 2), dtype=dtype))
+                A, np.zeros((2, 2), dtype=dtype), np.zeros((n2, 2), dtype=dtype)
+            )
 
             A = A.dot(A)
             A = A.dot(A)
@@ -523,35 +528,35 @@ class TestEigens(unittest.TestCase):
 
             return erra, errsa, bestsa
 
-        for dtype in ['float16', 'float32', 'float64']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float16", "float32", "float64"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for n in [100, 200]:
                 for k in [30, 90]:
                     for n_iter in [2, 1000]:
                         for isreal in [True, False]:
                             l = k + 1
                             (erra, errsa, bestsa) = eigenstestserrs(
-                                n, k, n_iter, isreal, l, dtype)
+                                n, k, n_iter, isreal, l, dtype
+                            )
                             err.append(erra)
                             errs.append(errsa)
                             bests.append(bestsa)
                             self.assertTrue(erra < max(10 * bestsa, prec))
 
-        logging.info('errs = \n%s', np.asarray(errs))
-        logging.info('err = \n%s', np.asarray(err))
-        logging.info('bests = \n%s', np.asarray(bests))
+        logging.info("errs = \n%s", np.asarray(errs))
+        logging.info("err = \n%s", np.asarray(err))
+        logging.info("bests = \n%s", np.asarray(bests))
 
 
 class TestPCA(unittest.TestCase):
-
     def test_dense(self):
 
-        logging.info('running TestPCA.test_dense...')
+        logging.info("running TestPCA.test_dense...")
 
         errs = []
         err = []
@@ -560,24 +565,26 @@ class TestPCA(unittest.TestCase):
 
             if isreal:
                 U = np.random.normal(size=(m, k)).astype(dtype)
-                (U, _) = qr(U, mode='economic')
+                (U, _) = qr(U, mode="economic")
 
                 V = np.random.normal(size=(n, k)).astype(dtype)
-                (V, _) = qr(V, mode='economic')
+                (V, _) = qr(V, mode="economic")
 
             if not isreal:
-                U = np.random.normal(size=(m, k)).astype(dtype) \
-                    + 1j * np.random.normal(size=(m, k)).astype(dtype)
-                (U, _) = qr(U, mode='economic')
+                U = np.random.normal(size=(m, k)).astype(dtype) + 1j * np.random.normal(
+                    size=(m, k)
+                ).astype(dtype)
+                (U, _) = qr(U, mode="economic")
 
-                V = np.random.normal(size=(n, k)).astype(dtype) \
-                    + 1j * np.random.normal(size=(n, k)).astype(dtype)
-                (V, _) = qr(V, mode='economic')
+                V = np.random.normal(size=(n, k)).astype(dtype) + 1j * np.random.normal(
+                    size=(n, k)
+                ).astype(dtype)
+                (V, _) = qr(V, mode="economic")
 
             s0 = np.zeros((k), dtype=dtype)
             s0[0] = 1
-            s0[1] = .1
-            s0[2] = .01
+            s0[1] = 0.1
+            s0[2] = 0.01
 
             A = U.dot(np.diag(s0).dot(V.conj().T))
 
@@ -603,13 +610,13 @@ class TestPCA(unittest.TestCase):
 
             return erra, errsa
 
-        for dtype in ['float64', 'float32', 'float16']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float64", "float32", "float16"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for (m, n) in [(20, 10), (10, 20), (20, 20)]:
                 for k in [3, 9]:
                     for n_iter in [0, 2, 1000]:
@@ -617,17 +624,18 @@ class TestPCA(unittest.TestCase):
                             for isreal in [True, False]:
                                 l = k + 1
                                 (erra, errsa) = pcatesterrs(
-                                    m, n, k, n_iter, raw, isreal, l, dtype)
+                                    m, n, k, n_iter, raw, isreal, l, dtype
+                                )
                                 err.append(erra)
                                 errs.append(errsa)
                                 self.assertTrue(erra < prec)
 
-        logging.info('errs = \n%s', np.asarray(errs))
-        logging.info('err = \n%s', np.asarray(err))
+        logging.info("errs = \n%s", np.asarray(errs))
+        logging.info("err = \n%s", np.asarray(err))
 
     def test_sparse(self):
 
-        logging.info('running TestPCA.test_sparse...')
+        logging.info("running TestPCA.test_sparse...")
 
         errs = []
         err = []
@@ -644,8 +652,8 @@ class TestPCA(unittest.TestCase):
             A = A - spdiags(np.arange(min(m, n) + 1), 1, m, n)
             A = A - spdiags(np.arange(min(m, n)) + 1, -1, m, n)
             A = A / diffsnorm(
-                A, np.zeros((m, 2), dtype=dtype), [0, 0],
-                np.zeros((2, n), dtype=dtype))
+                A, np.zeros((m, 2), dtype=dtype), [0, 0], np.zeros((2, n), dtype=dtype)
+            )
             A = A.dot(A.conj().T.dot(A))
             A = A.dot(A.conj().T.dot(A))
             A = A[np.random.permutation(m), :]
@@ -679,13 +687,13 @@ class TestPCA(unittest.TestCase):
 
             return erra, errsa, bestsa
 
-        for dtype in ['float64', 'float32', 'float16']:
-            if dtype == 'float64':
-                prec = .1e-10
-            elif dtype == 'float32':
-                prec = .1e-2
+        for dtype in ["float64", "float32", "float16"]:
+            if dtype == "float64":
+                prec = 0.1e-10
+            elif dtype == "float32":
+                prec = 0.1e-2
             else:
-                prec = .1e0
+                prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for k in [30, 90]:
                     for n_iter in [2, 1000]:
@@ -693,17 +701,18 @@ class TestPCA(unittest.TestCase):
                             for isreal in [True, False]:
                                 l = k + 1
                                 (erra, errsa, bestsa) = pcatestserrs(
-                                    m, n, k, n_iter, raw, isreal, l, dtype)
+                                    m, n, k, n_iter, raw, isreal, l, dtype
+                                )
                                 err.append(erra)
                                 errs.append(errsa)
                                 bests.append(bestsa)
                                 self.assertTrue(erra < max(10 * bestsa, prec))
 
-        logging.info('errs = \n%s', np.asarray(errs))
-        logging.info('err = \n%s', np.asarray(err))
-        logging.info('bests = \n%s', np.asarray(bests))
+        logging.info("errs = \n%s", np.asarray(errs))
+        logging.info("err = \n%s", np.asarray(err))
+        logging.info("bests = \n%s", np.asarray(bests))
 
 
-if __name__ == '__main__':
-    logging.basicConfig(format='%(message)s', level=logging.INFO)
+if __name__ == "__main__":
+    logging.basicConfig(format="%(message)s", level=logging.INFO)
     unittest.main()

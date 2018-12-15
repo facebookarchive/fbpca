@@ -192,8 +192,7 @@ def diffsnorm(A, U, s, Va, n_iter=20):
 
     assert n_iter >= 1
 
-    if np.isrealobj(A) and np.isrealobj(U) and np.isrealobj(s) and \
-            np.isrealobj(Va):
+    if np.isrealobj(A) and np.isrealobj(U) and np.isrealobj(s) and np.isrealobj(Va):
         isreal = True
     else:
         isreal = False
@@ -209,8 +208,9 @@ def diffsnorm(A, U, s, Va, n_iter=20):
         if isreal:
             x = np.random.normal(size=(n, 1)).astype(dtype)
         else:
-            x = np.random.normal(size=(n, 1)).astype(dtype) \
-                + 1j * np.random.normal(size=(n, 1)).astype(dtype)
+            x = np.random.normal(size=(n, 1)).astype(dtype) + 1j * np.random.normal(
+                size=(n, 1)
+            ).astype(dtype)
 
         x = x / norm(x)
 
@@ -225,8 +225,9 @@ def diffsnorm(A, U, s, Va, n_iter=20):
             #
             # Set x = (A' - Va' diag(s)' U')y.
             #
-            x = mult(y.conj().T, A).conj().T \
-                - Va.conj().T.dot(np.diag(s).conj().T.dot(U.conj().T.dot(y)))
+            x = mult(y.conj().T, A).conj().T - Va.conj().T.dot(
+                np.diag(s).conj().T.dot(U.conj().T.dot(y))
+            )
 
             #
             # Normalize x, memorizing its Euclidean norm.
@@ -246,8 +247,9 @@ def diffsnorm(A, U, s, Va, n_iter=20):
         if isreal:
             y = np.random.normal(size=(m, 1)).astype(dtype)
         else:
-            y = np.random.normal(size=(m, 1)).astype(dtype) \
-                + 1j * np.random.normal(size=(m, 1)).astype(dtype)
+            y = np.random.normal(size=(m, 1)).astype(dtype) + 1j * np.random.normal(
+                size=(m, 1)
+            ).astype(dtype)
 
         y = y / norm(y)
 
@@ -258,8 +260,9 @@ def diffsnorm(A, U, s, Va, n_iter=20):
             #
             # Set x = (A' - Va' diag(s)' U')y.
             #
-            x = mult(y.conj().T, A).conj().T \
-                - Va.conj().T.dot(np.diag(s).conj().T.dot(U.conj().T.dot(y)))
+            x = mult(y.conj().T, A).conj().T - Va.conj().T.dot(
+                np.diag(s).conj().T.dot(U.conj().T.dot(y))
+            )
             #
             # Set y = (A - U diag(s) Va)x.
             #
@@ -379,8 +382,7 @@ def diffsnormc(A, U, s, Va, n_iter=20):
 
     assert n_iter >= 1
 
-    if np.isrealobj(A) and np.isrealobj(U) and np.isrealobj(s) and \
-            np.isrealobj(Va):
+    if np.isrealobj(A) and np.isrealobj(U) and np.isrealobj(s) and np.isrealobj(Va):
         isreal = True
     else:
         isreal = False
@@ -402,8 +404,9 @@ def diffsnormc(A, U, s, Va, n_iter=20):
         if isreal:
             x = np.random.normal(size=(n, 1)).astype(dtype)
         else:
-            x = np.random.normal(size=(n, 1)).astype(dtype) \
-                + 1j * np.random.normal(size=(n, 1)).astype(dtype)
+            x = np.random.normal(size=(n, 1)).astype(dtype) + 1j * np.random.normal(
+                size=(n, 1)
+            ).astype(dtype)
 
         x = x / norm(x)
 
@@ -414,14 +417,19 @@ def diffsnormc(A, U, s, Va, n_iter=20):
             #
             # Set y = (A - ones(m,1)*c - U diag(s) Va)x.
             #
-            y = mult(A, x) - np.ones((m, 1), dtype=dtype).dot(c.dot(x)) \
+            y = (
+                mult(A, x)
+                - np.ones((m, 1), dtype=dtype).dot(c.dot(x))
                 - U.dot(np.diag(s).dot(Va.dot(x)))
+            )
             #
             # Set x = (A' - c'*ones(1,m) - Va' diag(s)' U')y.
             #
-            x = mult(y.conj().T, A).conj().T \
-                - c.conj().T.dot(np.ones((1, m), dtype=dtype).dot(y)) \
+            x = (
+                mult(y.conj().T, A).conj().T
+                - c.conj().T.dot(np.ones((1, m), dtype=dtype).dot(y))
                 - Va.conj().T.dot(np.diag(s).conj().T.dot(U.conj().T.dot(y)))
+            )
 
             #
             # Normalize x, memorizing its Euclidean norm.
@@ -441,8 +449,9 @@ def diffsnormc(A, U, s, Va, n_iter=20):
         if isreal:
             y = np.random.normal(size=(m, 1)).astype(dtype)
         else:
-            y = np.random.normal(size=(m, 1)).astype(dtype) \
-                + 1j * np.random.normal(size=(m, 1)).astype(dtype)
+            y = np.random.normal(size=(m, 1)).astype(dtype) + 1j * np.random.normal(
+                size=(m, 1)
+            ).astype(dtype)
 
         y = y / norm(y)
 
@@ -453,14 +462,19 @@ def diffsnormc(A, U, s, Va, n_iter=20):
             #
             # Set x = (A' - c'*ones(1,m) - Va' diag(s)' U')y.
             #
-            x = mult(y.conj().T, A).conj().T \
-                - c.conj().T.dot(np.ones((1, m), dtype=dtype).dot(y)) \
+            x = (
+                mult(y.conj().T, A).conj().T
+                - c.conj().T.dot(np.ones((1, m), dtype=dtype).dot(y))
                 - Va.conj().T.dot(np.diag(s).conj().T.dot(U.conj().T.dot(y)))
+            )
             #
             # Set y = (A - ones(m,1)*c - U diag(s) Va)x.
             #
-            y = mult(A, x) - np.ones((m, 1), dtype=dtype).dot(c.dot(x)) \
+            y = (
+                mult(A, x)
+                - np.ones((m, 1), dtype=dtype).dot(c.dot(x))
                 - U.dot(np.diag(s).dot(Va.dot(x)))
+            )
 
             #
             # Normalize y, memorizing its Euclidean norm.
@@ -580,8 +594,9 @@ def diffsnorms(A, S, V, n_iter=20):
     if isreal:
         x = np.random.normal(size=(n, 1)).astype(dtype)
     else:
-        x = np.random.normal(size=(n, 1)).astype(dtype) \
-            + 1j * np.random.normal(size=(n, 1)).astype(dtype)
+        x = np.random.normal(size=(n, 1)).astype(dtype) + 1j * np.random.normal(
+            size=(n, 1)
+        ).astype(dtype)
 
     x = x / norm(x)
 
@@ -596,8 +611,7 @@ def diffsnorms(A, S, V, n_iter=20):
         #
         # Set x = (A'-VS'V')y.
         #
-        x = mult(y.conj().T, A).conj().T \
-            - V.dot(S.conj().T.dot(V.conj().T.dot(y)))
+        x = mult(y.conj().T, A).conj().T - V.dot(S.conj().T.dot(V.conj().T.dot(y)))
 
         #
         # Normalize x, memorizing its Euclidean norm.
@@ -732,14 +746,13 @@ def eigenn(A, k=6, n_iter=4, l=None):
     x = np.random.uniform(low=-1.0, high=1.0, size=(n, 1)).astype(dtype)
     y = mult(A, x)
     z = mult(x.conj().T, A).conj().T
-    if dtype == 'float16':
-        prec = .1e-1
-    elif dtype in ['float32', 'complex64']:
-        prec = .1e-3
+    if dtype == "float16":
+        prec = 0.1e-1
+    elif dtype in ["float32", "complex64"]:
+        prec = 0.1e-3
     else:
-        prec = .1e-11
-    assert (norm(y - z) <= prec * norm(y)) and \
-        (norm(y - z) <= prec * norm(z))
+        prec = 0.1e-11
+    assert (norm(y - z) <= prec * norm(y)) and (norm(y - z) <= prec * norm(z))
 
     #
     # Eigendecompose A directly if l >= n/1.25.
@@ -760,8 +773,7 @@ def eigenn(A, k=6, n_iter=4, l=None):
         R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
     if not isreal:
         R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
-        R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-            .astype(dtype)
+        R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
 
     Q = mult(A, R)
 
@@ -775,7 +787,7 @@ def eigenn(A, k=6, n_iter=4, l=None):
         for j in range(l):
             anorm = max(anorm, norm(Q[:, j]) / norm(R[:, j]))
 
-        (Q, _) = qr(Q, mode='economic')
+        (Q, _) = qr(Q, mode="economic")
 
     if n_iter > 0:
 
@@ -802,7 +814,7 @@ def eigenn(A, k=6, n_iter=4, l=None):
             for j in range(l):
                 anorm = max(anorm, norm(Q[:, j]) / cnorm[j])
 
-            (Q, _) = qr(Q, mode='economic')
+            (Q, _) = qr(Q, mode="economic")
 
     #
     # Use the Nystrom method to obtain approximations to the
@@ -811,7 +823,7 @@ def eigenn(A, k=6, n_iter=4, l=None):
     # positive definite). An alternative is to use the (symmetric)
     # square root in place of the Cholesky factor of the shift.
     #
-    anorm = .1e-6 * anorm * math.sqrt(1. * n)
+    anorm = 0.1e-6 * anorm * math.sqrt(1.0 * n)
     E = mult(A, Q) + anorm * Q
     R = Q.conj().T.dot(E)
     R = (R + R.conj().T) / 2
@@ -948,14 +960,13 @@ def eigens(A, k=6, n_iter=4, l=None):
     x = np.random.uniform(low=-1.0, high=1.0, size=(n, 1)).astype(dtype)
     y = mult(A, x)
     z = mult(x.conj().T, A).conj().T
-    if dtype == 'float16':
-        prec = .1e-1
-    elif dtype in ['float32', 'complex64']:
-        prec = .1e-3
+    if dtype == "float16":
+        prec = 0.1e-1
+    elif dtype in ["float32", "complex64"]:
+        prec = 0.1e-3
     else:
-        prec = .1e-11
-    assert (norm(y - z) <= prec * norm(y)) and \
-        (norm(y - z) <= prec * norm(z))
+        prec = 0.1e-11
+    assert (norm(y - z) <= prec * norm(y)) and (norm(y - z) <= prec * norm(z))
 
     #
     # Eigendecompose A directly if l >= n/1.25.
@@ -977,8 +988,7 @@ def eigens(A, k=6, n_iter=4, l=None):
         Q = mult(A, Q)
     if not isreal:
         Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
-        Q = Q + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-            .astype(dtype)
+        Q = Q + 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
         Q = mult(A, Q)
 
     #
@@ -986,7 +996,7 @@ def eigens(A, k=6, n_iter=4, l=None):
     # for the columns of the earlier Q.
     #
     if n_iter == 0:
-        (Q, _) = qr(Q, mode='economic')
+        (Q, _) = qr(Q, mode="economic")
     if n_iter > 0:
         (Q, _) = lu(Q, permute_l=True)
 
@@ -1000,7 +1010,7 @@ def eigens(A, k=6, n_iter=4, l=None):
         if it + 1 < n_iter:
             (Q, _) = lu(Q, permute_l=True)
         else:
-            (Q, _) = qr(Q, mode='economic')
+            (Q, _) = qr(Q, mode="economic")
 
     #
     # Eigendecompose Q'*A*Q to obtain approximations to the eigenvalues
@@ -1149,8 +1159,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
         # SVD A directly if l >= m/1.25 or l >= n/1.25.
         #
         if l >= m / 1.25 or l >= n / 1.25:
-            (U, s, Va) = svd(
-                A.todense() if issparse(A) else A, full_matrices=False)
+            (U, s, Va) = svd(A.todense() if issparse(A) else A, full_matrices=False)
             #
             # Retain only the leftmost k columns of U, the uppermost
             # k rows of Va, and the first k entries of s.
@@ -1163,14 +1172,13 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply A to a random matrix, obtaining Q.
             #
             if isreal:
-                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    .astype(dtype)
+                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
                 Q = mult(A, Q)
             if not isreal:
-                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    .astype(dtype)
-                Q += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    .astype(dtype)
+                Q = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+                Q += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(
+                    dtype
+                )
                 Q = mult(A, Q)
 
             #
@@ -1178,7 +1186,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # well-conditioned basis for the columns of the earlier Q.
             #
             if n_iter == 0:
-                (Q, _) = qr(Q, mode='economic')
+                (Q, _) = qr(Q, mode="economic")
             if n_iter > 0:
                 (Q, _) = lu(Q, permute_l=True)
 
@@ -1196,7 +1204,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
                 if it + 1 < n_iter:
                     (Q, _) = lu(Q, permute_l=True)
                 else:
-                    (Q, _) = qr(Q, mode='economic')
+                    (Q, _) = qr(Q, mode="economic")
 
             #
             # SVD Q'*A to obtain approximations to the singular values
@@ -1220,13 +1228,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply A' to a random matrix, obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    .astype(dtype)
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    .astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    .astype(dtype)
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
+                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(
+                    dtype
+                )
 
             Q = mult(R, A).conj().T
 
@@ -1235,7 +1242,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # well-conditioned basis for the columns of the earlier Q.
             #
             if n_iter == 0:
-                (Q, _) = qr(Q, mode='economic')
+                (Q, _) = qr(Q, mode="economic")
             if n_iter > 0:
                 (Q, _) = lu(Q, permute_l=True)
 
@@ -1252,7 +1259,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
                 if it + 1 < n_iter:
                     (Q, _) = lu(Q, permute_l=True)
                 else:
-                    (Q, _) = qr(Q, mode='economic')
+                    (Q, _) = qr(Q, mode="economic")
 
             #
             # SVD A*Q to obtain approximations to the singular values
@@ -1282,8 +1289,10 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
         #
         if l >= m / 1.25 or l >= n / 1.25:
             (U, s, Va) = svd(
-                (A.todense() if issparse(A) else A) -
-                np.ones((m, 1), dtype=dtype).dot(c), full_matrices=False)
+                (A.todense() if issparse(A) else A)
+                - np.ones((m, 1), dtype=dtype).dot(c),
+                full_matrices=False,
+            )
             #
             # Retain only the leftmost k columns of U, the uppermost
             # k rows of Va, and the first k entries of s.
@@ -1296,13 +1305,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # Apply the centered A to a random matrix, obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    .astype(dtype)
+                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    .astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)) \
-                    .astype(dtype)
+                R = np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(dtype)
+                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(n, l)).astype(
+                    dtype
+                )
 
             Q = mult(A, R) - np.ones((m, 1), dtype=dtype).dot(c.dot(R))
 
@@ -1311,7 +1319,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # well-conditioned basis for the columns of the earlier Q.
             #
             if n_iter == 0:
-                (Q, _) = qr(Q, mode='economic')
+                (Q, _) = qr(Q, mode="economic")
             if n_iter > 0:
                 (Q, _) = lu(Q, permute_l=True)
 
@@ -1320,8 +1328,9 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             #
             for it in range(n_iter):
 
-                Q = mult(Q.conj().T, A) \
-                    - (Q.conj().T.dot(np.ones((m, 1), dtype=dtype))).dot(c)
+                Q = mult(Q.conj().T, A) - (
+                    Q.conj().T.dot(np.ones((m, 1), dtype=dtype))
+                ).dot(c)
                 Q = Q.conj().T
                 (Q, _) = lu(Q, permute_l=True)
 
@@ -1330,7 +1339,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
                 if it + 1 < n_iter:
                     (Q, _) = lu(Q, permute_l=True)
                 else:
-                    (Q, _) = qr(Q, mode='economic')
+                    (Q, _) = qr(Q, mode="economic")
 
             #
             # SVD Q' applied to the centered A to obtain
@@ -1339,8 +1348,9 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # vectors to approximate the left singular vectors of the
             # centered A.
             #
-            QA = mult(Q.conj().T, A) \
-                - (Q.conj().T.dot(np.ones((m, 1), dtype=dtype))).dot(c)
+            QA = mult(Q.conj().T, A) - (
+                Q.conj().T.dot(np.ones((m, 1), dtype=dtype))
+            ).dot(c)
             (R, s, Va) = svd(QA, full_matrices=False)
             U = Q.dot(R)
 
@@ -1357,13 +1367,12 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # obtaining Q.
             #
             if isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    .astype(dtype)
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
             if not isreal:
-                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    .astype(dtype)
-                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)) \
-                    .astype(dtype)
+                R = np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(dtype)
+                R += 1j * np.random.uniform(low=-1.0, high=1.0, size=(l, m)).astype(
+                    dtype
+                )
 
             Q = mult(R, A) - (R.dot(np.ones((m, 1), dtype=dtype))).dot(c)
             Q = Q.conj().T
@@ -1373,7 +1382,7 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             # well-conditioned basis for the columns of the earlier Q.
             #
             if n_iter == 0:
-                (Q, _) = qr(Q, mode='economic')
+                (Q, _) = qr(Q, mode="economic")
             if n_iter > 0:
                 (Q, _) = lu(Q, permute_l=True)
 
@@ -1385,14 +1394,15 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
                 Q = mult(A, Q) - np.ones((m, 1), dtype=dtype).dot(c.dot(Q))
                 (Q, _) = lu(Q, permute_l=True)
 
-                Q = mult(Q.conj().T, A) \
-                    - (Q.conj().T.dot(np.ones((m, 1), dtype=dtype))).dot(c)
+                Q = mult(Q.conj().T, A) - (
+                    Q.conj().T.dot(np.ones((m, 1), dtype=dtype))
+                ).dot(c)
                 Q = Q.conj().T
 
                 if it + 1 < n_iter:
                     (Q, _) = lu(Q, permute_l=True)
                 else:
-                    (Q, _) = qr(Q, mode='economic')
+                    (Q, _) = qr(Q, mode="economic")
 
             #
             # SVD the centered A applied to Q to obtain approximations
@@ -1402,7 +1412,8 @@ def pca(A, k=6, raw=False, n_iter=2, l=None):
             #
             (U, s, Ra) = svd(
                 mult(A, Q) - np.ones((m, 1), dtype=dtype).dot(c.dot(Q)),
-                full_matrices=False)
+                full_matrices=False,
+            )
             Va = Ra.dot(Q.conj().T)
 
             #
