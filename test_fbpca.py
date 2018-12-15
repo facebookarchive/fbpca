@@ -69,7 +69,6 @@ from fbpca import diffsnorm, diffsnormc, diffsnorms, eigenn, eigens, pca
 
 class TestDiffsnorm(unittest.TestCase):
     def test_dense(self):
-
         logging.info("running TestDiffsnorm.test_dense...")
         logging.info("err =")
 
@@ -82,7 +81,6 @@ class TestDiffsnorm(unittest.TestCase):
                 prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for isreal in [True, False]:
-
                     if isreal:
                         A = np.random.normal(size=(m, n)).astype(dtype)
                     if not isreal:
@@ -96,7 +94,6 @@ class TestDiffsnorm(unittest.TestCase):
                     self.assertTrue(snorm < prec * s[0])
 
     def test_sparse(self):
-
         logging.info("running TestDiffsnorm.test_sparse...")
         logging.info("err =")
 
@@ -109,7 +106,6 @@ class TestDiffsnorm(unittest.TestCase):
                 prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for isreal in [True, False]:
-
                     if isreal:
                         A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
                     if not isreal:
@@ -132,7 +128,6 @@ class TestDiffsnorm(unittest.TestCase):
 
 class TestDiffsnormc(unittest.TestCase):
     def test_dense(self):
-
         logging.info("running TestDiffsnormc.test_dense...")
         logging.info("err =")
 
@@ -145,7 +140,6 @@ class TestDiffsnormc(unittest.TestCase):
                 prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for isreal in [True, False]:
-
                     if isreal:
                         A = np.random.normal(size=(m, n)).astype(dtype)
                     if not isreal:
@@ -163,7 +157,6 @@ class TestDiffsnormc(unittest.TestCase):
                     self.assertTrue(snorm < prec * s[0])
 
     def test_sparse(self):
-
         logging.info("running TestDiffsnormc.test_sparse...")
         logging.info("err =")
 
@@ -176,7 +169,6 @@ class TestDiffsnormc(unittest.TestCase):
                 prec = 0.1e0
             for (m, n) in [(200, 100), (100, 200), (100, 100)]:
                 for isreal in [True, False]:
-
                     if isreal:
                         A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n).astype(dtype)
                     if not isreal:
@@ -204,7 +196,6 @@ class TestDiffsnormc(unittest.TestCase):
 
 class TestDiffsnorms(unittest.TestCase):
     def test_dense(self):
-
         logging.info("running TestDiffsnorms.test_dense...")
         logging.info("err =")
 
@@ -217,7 +208,6 @@ class TestDiffsnorms(unittest.TestCase):
                 prec = 0.1e0
             for n in [100, 200]:
                 for isreal in [True, False]:
-
                     if isreal:
                         A = np.random.normal(size=(n, n)).astype(dtype)
                     if not isreal:
@@ -232,7 +222,6 @@ class TestDiffsnorms(unittest.TestCase):
                     self.assertTrue(snorm < prec * s[0])
 
     def test_sparse(self):
-
         logging.info("running TestDiffsnorms.test_sparse...")
         logging.info("err =")
 
@@ -245,7 +234,6 @@ class TestDiffsnorms(unittest.TestCase):
                 prec = 0.1e0
             for n in [100, 200]:
                 for isreal in [True, False]:
-
                     if isreal:
                         A = 2 * spdiags(np.arange(n) + 1, 0, n, n).astype(dtype)
                     if not isreal:
@@ -270,14 +258,12 @@ class TestDiffsnorms(unittest.TestCase):
 
 class TestEigenn(unittest.TestCase):
     def test_dense(self):
-
         logging.info("running TestEigenn.test_dense...")
 
         errs = []
         err = []
 
         def eigenntesterrs(n, k, n_iter, isreal, l, dtype):
-
             if isreal:
                 V = np.random.normal(size=(n, k)).astype(dtype)
             if not isreal:
@@ -331,7 +317,6 @@ class TestEigenn(unittest.TestCase):
         logging.info("err = \n%s", np.asarray(err))
 
     def test_sparse(self):
-
         logging.info("running TestEigenn.test_sparse...")
 
         errs = []
@@ -339,7 +324,6 @@ class TestEigenn(unittest.TestCase):
         bests = []
 
         def eigenntestserrs(n, k, n_iter, isreal, l, dtype):
-
             n2 = int(round(n / 2))
             assert 2 * n2 == n
 
@@ -410,14 +394,12 @@ class TestEigenn(unittest.TestCase):
 
 class TestEigens(unittest.TestCase):
     def test_dense(self):
-
         logging.info("running TestEigens.test_dense...")
 
         errs = []
         err = []
 
         def eigenstesterrs(n, k, n_iter, isreal, l, dtype):
-
             if isreal:
                 V = np.random.normal(size=(n, k)).astype(dtype)
             if not isreal:
@@ -471,7 +453,6 @@ class TestEigens(unittest.TestCase):
         logging.info("err = \n%s", np.asarray(err))
 
     def test_sparse(self):
-
         logging.info("running TestEigens.test_sparse...")
 
         errs = []
@@ -479,7 +460,6 @@ class TestEigens(unittest.TestCase):
         bests = []
 
         def eigenstestserrs(n, k, n_iter, isreal, l, dtype):
-
             n2 = int(round(n / 2))
             assert 2 * n2 == n
 
@@ -555,14 +535,12 @@ class TestEigens(unittest.TestCase):
 
 class TestPCA(unittest.TestCase):
     def test_dense(self):
-
         logging.info("running TestPCA.test_dense...")
 
         errs = []
         err = []
 
         def pcatesterrs(m, n, k, n_iter, raw, isreal, l, dtype):
-
             if isreal:
                 U = np.random.normal(size=(m, k)).astype(dtype)
                 (U, _) = qr(U, mode="economic")
@@ -634,7 +612,6 @@ class TestPCA(unittest.TestCase):
         logging.info("err = \n%s", np.asarray(err))
 
     def test_sparse(self):
-
         logging.info("running TestPCA.test_sparse...")
 
         errs = []
@@ -642,7 +619,6 @@ class TestPCA(unittest.TestCase):
         bests = []
 
         def pcatestserrs(m, n, k, n_iter, raw, isreal, l, dtype):
-
             if isreal:
                 A = 2 * spdiags(np.arange(min(m, n)) + 1, 0, m, n)
             if not isreal:
