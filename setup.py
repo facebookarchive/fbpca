@@ -1,5 +1,5 @@
 """
-Copyright (c) 2014, Facebook, Inc.
+Copyright (c) 2019, Facebook, Inc.
 All rights reserved.
 
 This source code is licensed under the BSD-style license found in the
@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name='fbpca',
-    version='1.0',
+    version='1.1',
     author='Facebook Inc',
     author_email='opensource@fb.com',
     maintainer='tulloch@fb.com',
