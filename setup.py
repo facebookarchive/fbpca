@@ -8,6 +8,9 @@ of patent rights can be found in the PATENTS file in the same directory.
 """
 from setuptools import setup
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='fbpca',
     version='1.1',
@@ -20,6 +23,8 @@ setup(
     py_modules=['fbpca'],
     license='BSD License',
     platforms='Any',
+    include_package_data=True,
+    install_requires=requirements,
     long_description=open('README.rst').read(),
     classifiers=[
         'Intended Audience :: Science/Research',
